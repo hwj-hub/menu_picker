@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ea580c">
+<title>오늘 뭐 먹지? 메뉴 추천기 — 점심·저녁·아침·야식 메뉴 랜덤 추천, 냉장고 재료로 찾기·메뉴 월드컵 (무료)</title>
+<meta name="description" content="저녁 메뉴 추천, 점심 메뉴 추천이 필요할 때 누르면 바로 골라 드립니다. 메뉴 164가지 가운데 끼니·외식·배달·집밥, 혼밥·해장·비 오는 날·다이어트 조건에 맞춰 랜덤 뽑기. 냉장고에 있는 재료로 만들 수 있는 간단한 저녁 메뉴, 메뉴 월드컵, 여럿이 지워 가며 고르기와 친구에게 묻는 링크, 일주일 식단과 장보기 목록까지. 설치·가입 없이 무료.">
+<meta property="og:title" content="오늘 뭐 먹지? 메뉴 추천기 · 점심·저녁 메뉴 랜덤 뽑기">
+<meta property="og:description" content="누르면 오늘 메뉴가 나와요. 냉장고 재료로 찾기, 메뉴 월드컵, 친구에게 묻는 링크, 일주일 식단까지.">
+<meta property="og:type" content="website">
+<!-- 링크 미리보기 그림: 스크래퍼는 절대 주소만 읽으므로 배포 주소로 적는다. 그림은 make_thumbnail.py 가 만든 og-image.png(1200×630) -->
+<meta property="og:image" content="https://hwj-hub.github.io/menu_picker/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="오늘 뭐 먹지 메뉴 추천기 — 뽑기 단추를 누르면 김치찌개 같은 메뉴 카드와 고른 까닭이 나오는 화면">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8D%B1%3C/text%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  color-scheme:light dark;
+  --bg:#f2f4f8; --card:#fff; --card2:#f7f8fb; --fg:#151a26; --muted:#556072; --line:#e0e4ec;
+  --accent:#ea580c; --accent2:#d97706; --afg:#fff;
+  --ok:#0f766e; --okbg:#e6f3f1; --warn:#b45309; --warnbg:#fef4e6; --danger:#c81e1e; --dangerbg:#fdecec;
+  --info:#475569; --infobg:#eef1f6;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px -14px rgba(16,24,40,.32);
+  --r:16px;
+}
+@media (prefers-color-scheme:dark){
+ :root{
+  --bg:#0c0f16; --card:#161b26; --card2:#121620; --fg:#eef1f8; --muted:#a8b1c4; --line:#2a3244;
+  --accent:#fdba74; --accent2:#fcd34d; --afg:#431407;
+  --ok:#34d399; --okbg:#0f2a22; --warn:#fbbf24; --warnbg:#2a2110; --danger:#f87171; --dangerbg:#2c1414;
+  --info:#c3ccd8; --infobg:#1f242e;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -16px rgba(0,0,0,.8);
+ }
+}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:1180px;margin:0 auto;padding:0 14px calc(70px + env(safe-area-inset-bottom))}
+.hide{display:none !important}
+.nw{white-space:nowrap}
+
+/* ── 인앱 브라우저 안내 띠 ── 앱 안 WebView 는 파일을 내려받지 못한다 */
+.iabar{display:none;align-items:center;gap:10px;margin:10px 0 0;padding:11px 12px;border-radius:12px;
+  background:var(--warnbg);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);line-height:1.5}
+body.inapp .iabar{display:flex}
+.iabar .ia-t{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:700;color:var(--fg)}
+.iabar .ia-t small{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:2px}
+.iabar .ia-go{flex:0 0 auto;font:inherit;font-size:12.5px;font-weight:800;color:#fff;border:0;border-radius:999px;
+  padding:9px 14px;min-height:38px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+@media (prefers-color-scheme:dark){.iabar .ia-go{color:var(--afg)}}
+/* 닫기는 휴대폰에서 누르기 쉽게 36px(터치 대상 최소) */
+.iabar .ia-x{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;
+  color:var(--muted);font:inherit;font-size:12px;line-height:1;cursor:pointer}
+/* ── 앱 안에서 열었을 때 막는 창 ── 토스트(z-index 99)보다는 아래에 둔다 */
+.iamodal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:18px;
+  background:rgba(8,14,20,.72);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+body.ia-lock{overflow:hidden}
+body.ia-lock .iamodal{display:flex}
+body.ia-lock .wrap{pointer-events:none}
+.iasheet{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  width:100%;max-width:420px;max-height:92vh;overflow:auto;padding:22px 18px 16px;text-align:center}
+.iasheet .iaic{font-size:34px;line-height:1;margin-bottom:10px}
+.iasheet h2{font-size:17.5px;font-weight:800;letter-spacing:-.02em;margin:0 0 10px;line-height:1.45}
+.iap{font-size:13.5px;font-weight:600;color:var(--muted);line-height:1.7;margin:0 0 14px}
+.iap b{color:var(--fg);font-weight:800}
+.iasteps{text-align:left;margin:0 0 16px;padding:12px 14px 12px 32px;border-radius:12px;background:var(--card2);
+  font-size:13px;font-weight:600;color:var(--muted);line-height:1.7}
+.iasteps li+li{margin-top:5px}
+.iasteps b{color:var(--fg);font-weight:800}
+.iabtn{display:block;width:100%;font:inherit;font-size:15px;font-weight:800;color:#fff;border:0;border-radius:12px;
+  padding:14px;min-height:52px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:var(--shadow)}
+@media (prefers-color-scheme:dark){.iabtn{color:var(--afg)}}
+.iafine{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--muted);line-height:1.6}
+.iafine button{font:inherit;font-size:12px;font-weight:700;color:var(--muted);background:none;border:0;padding:6px 8px;
+  text-decoration:underline;cursor:pointer;min-height:36px}
+.dwarn{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:var(--warnbg);font-size:12.5px;font-weight:700;line-height:1.6}
+/* 문장 속 단추라 줄 높이는 그대로 두고(음수 여백) 누르는 면만 넓힌다 */
+.dwarn button{font:inherit;font-size:12.5px;font-weight:800;color:var(--accent);background:none;border:0;padding:9px 2px;margin:-9px 0;
+  text-decoration:underline;cursor:pointer}
+
+/* ── 저장 완료 카드 ── 화면을 덮지 않고 본문 흐름 안에 펼친다 */
+#doneCard{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.dmsg{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.6}
+.dsteps{margin:0;padding:0 0 0 20px;font-size:13px;font-weight:600;line-height:1.75;color:var(--muted)}
+.dsteps b{color:var(--fg);font-weight:800}
+
+header{text-align:center;padding:14px 0 2px}
+.logo{display:inline-flex;align-items:center;gap:9px;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.logo .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+.tag{font-size:14.5px;font-weight:600;color:var(--muted);margin:8px 0 0;text-wrap:balance}
+.tag b{color:var(--fg)}
+.badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.badge{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--okbg);color:var(--ok);border:1px solid transparent}
+.badge.gray{background:var(--card2);color:var(--muted);border-color:var(--line)}
+
+.toolbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+
+/* ── 두 칸 배치 · 넓은 화면에서 미리보기를 옆에 붙인다 ── */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0 16px}
+@media (min-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr) 430px;align-items:start}
+  /* 미리보기 높이를 화면에 맞춰 줄여 「PDF로 저장」이 화면 안에 남게 한다.
+     옆 칸은 화면 높이 안에서 따로 스크롤한다 — sticky 만 두면 옆 칸이 화면보다 길 때
+     맨 위에서 저장했을 때 펼쳐지는 완료 카드가 화면 아래로 빠진다 */
+  .side{position:sticky;top:8px;max-height:100vh;overflow:auto;padding-bottom:10px;scrollbar-width:thin}
+  .side .pv-pages{max-height:calc(100vh - 480px);min-height:320px;overflow:auto}
+}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-top:14px}
+.card h2{font-size:12px;font-weight:800;color:var(--muted);margin:0 0 12px;letter-spacing:.07em;
+  display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;margin-right:6px;
+  background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);letter-spacing:0;font-size:11.5px}
+.card h2 .opt{font-size:10.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
+
+/* ── 폼 ── */
+.row{margin-top:14px}
+.lab{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:13.5px;font-weight:800;margin-bottom:7px}
+.lab .hint{font-weight:500;color:var(--muted);font-size:12px;text-align:right}
+.lab>span:first-child{flex:0 0 auto}
+input[type=text],input[type=tel],input[type=date],input[type=time],select,textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--card2);
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:46px;width:100%;min-width:0}
+input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;display:block}
+input::placeholder,textarea::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}
+textarea{resize:vertical;line-height:1.6}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.grid2{display:flex;gap:10px;flex-wrap:wrap}
+.grid2>div{flex:1 1 180px;min-width:0}
+.grid2>div.wide{flex:2 1 240px}
+.seg{display:flex;gap:5px;flex-wrap:wrap}
+.seg button,.rgrid button,.tgrid button{flex:1 1 0;border:1px solid var(--line);background:var(--card2);color:var(--muted);font:inherit;
+  font-size:13.5px;font-weight:800;padding:9px 8px;border-radius:10px;cursor:pointer;min-height:46px;transition:.15s;min-width:72px}
+.seg button:hover,.rgrid button:hover,.tgrid button:hover{border-color:var(--accent)}
+.seg button.on,.rgrid button.on,.tgrid button.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.seg button .s,.rgrid button .s,.tgrid button .s{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:1px;line-height:1.4}
+.seg button.on .s,.rgrid button.on .s,.tgrid button.on .s{color:var(--accent)}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.rgrid button{min-width:0;padding:8px 6px}
+@media (min-width:600px){.rgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* 문서 종류 — 휴대폰 2칸, 넓으면 4칸 */
+.tgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.tgrid button{min-width:0;padding:11px 10px;text-align:left;min-height:64px}
+.tgrid button b{display:block;font-size:14.5px;font-weight:800;color:var(--fg)}
+.tgrid button.on b{color:var(--accent)}
+@media (min-width:600px){.tgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.rinfo{margin-top:10px;border-radius:11px;padding:9px 11px 9px 12px;font-size:12.5px;font-weight:700;line-height:1.65;border-left:3px solid}
+.rinfo:empty{display:none}
+.rinfo.ok{background:var(--okbg);color:var(--ok)}
+.rinfo.warn{background:var(--warnbg);color:var(--warn)}
+.rinfo.info{background:var(--infobg);color:var(--info)}
+.chk{display:flex;align-items:flex-start;gap:9px;font-size:14px;font-weight:700;cursor:pointer;padding:8px 0;margin-top:4px}
+.chk input{width:20px;height:20px;accent-color:var(--accent);flex:0 0 auto;margin:2px 0 0}
+.chk .d{display:block;font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.6;margin-top:1px}
+.unit{display:flex;gap:8px;align-items:center}
+.unit input{flex:1 1 auto}
+.unit span{flex:0 0 auto;font-size:14px;font-weight:800;color:var(--muted)}
+.unit.short input{flex:0 1 90px;text-align:center}
+.sub{border-left:3px solid color-mix(in srgb,var(--accent) 30%,transparent);padding-left:12px;margin-left:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chips:empty{display:none}
+.chips button{border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;
+  padding:6px 11px;border-radius:999px;cursor:pointer;min-height:38px;text-align:left}
+.chips button:hover{border-color:var(--accent);color:var(--accent)}
+.chips button.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.party{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;background:var(--card2)}
+.party.first{margin-top:0}
+.party .grid2{margin-top:8px}
+.party .grid2:first-of-type{margin-top:0}
+.party input,.party textarea{background:var(--card)}
+.ph{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;margin-bottom:9px}
+.ph em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;background:var(--card)}
+.fine{font-size:12px;font-weight:600;color:var(--muted);line-height:1.65;margin:9px 0 0}
+.fine b{color:var(--fg)}
+.cnote{font-size:12px;font-weight:700;color:var(--accent);margin:7px 0 0;line-height:1.6}
+.cnote:empty{display:none}
+
+.mini{border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;font-size:13px;font-weight:700;
+  padding:9px 14px;border-radius:999px;cursor:pointer;min-height:42px;transition:.15s}
+.mini:hover{border-color:var(--accent)}
+.btn{flex:1 1 130px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;font-size:14px;font-weight:800;
+  padding:11px 12px;border-radius:12px;cursor:pointer;min-height:48px;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:progress}
+.btn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:var(--shadow)}
+@media (prefers-color-scheme:dark){.btn.pri{color:var(--afg)}}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions .btn.pri{flex-basis:100%}
+
+/* ── 결과 카드 ── */
+.pv h2 .pvinfo{letter-spacing:.02em;font-weight:700}
+.pv-pages{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--muted) 14%,var(--card2));border-radius:12px;padding:12px;
+  border:1px solid var(--line)}
+.pv-pages canvas{display:block;width:100%;height:auto;background:#fff;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.18),0 6px 18px -10px rgba(0,0,0,.35);cursor:zoom-in}
+
+/* ── 점검 ── */
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.checks li{position:relative;border-radius:11px;padding:9px 11px 9px 34px;font-size:12.5px;font-weight:600;line-height:1.65}
+.checks li b{font-weight:800}
+.checks li::before{position:absolute;left:10px;top:9px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  font-size:10.5px;font-weight:900;line-height:1}
+.checks li.ok{background:var(--okbg);color:var(--ok)}
+.checks li.ok::before{content:"✓";background:var(--ok);color:var(--okbg)}
+.checks li.info{background:var(--infobg);color:var(--info)}
+.checks li.info::before{content:"i";background:var(--info);color:var(--infobg)}
+.checks li.warn{background:var(--warnbg);color:var(--warn)}
+.checks li.warn::before{content:"!";background:var(--warn);color:var(--warnbg)}
+.checks li.bad{background:var(--dangerbg);color:var(--danger)}
+.checks li.bad::before{content:"✕";background:var(--danger);color:var(--dangerbg)}
+
+/* ── 안내 ── */
+.steps{list-style:none;margin:0;padding:0;counter-reset:st}
+.steps li{position:relative;padding-left:32px;margin-bottom:12px;font-size:14px;font-weight:600;line-height:1.7;counter-increment:st}
+.steps li:last-child{margin-bottom:0}
+.steps li::before{content:counter(st);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+  font-size:12px;font-weight:800;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.steps li b{font-weight:800}
+.steps li .d{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.tbw{overflow-x:auto;margin:0 -2px;-webkit-overflow-scrolling:touch}
+table.kt{width:100%;min-width:560px;border-collapse:collapse;font-size:13px;line-height:1.6}
+table.kt th,table.kt td{border:1px solid var(--line);padding:9px 10px;vertical-align:top;text-align:left}
+table.kt th{background:var(--card2);font-weight:800;white-space:nowrap}
+table.kt td b{font-weight:800}
+table.kt td.k{font-weight:800;white-space:nowrap}
+.tnote{font-size:12px;font-weight:600;color:var(--muted);line-height:1.7;margin:10px 0 0}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;padding:10px 0;margin:-10px 0}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋ ";color:var(--accent);font-weight:800}
+details[open] summary::before{content:"－ "}
+details p{margin:8px 0 0;font-size:13.5px;color:var(--muted);line-height:1.8}
+details p b{color:var(--fg)}
+
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;line-height:1.8}
+footer b{color:var(--fg)}
+footer a{color:inherit}
+
+/* ══ 주의 문구 ══ */
+.nbx{border:1px solid var(--warn);border-radius:14px;background:var(--warnbg);padding:14px 15px;margin-top:14px}
+.nbx-h{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:800;color:var(--warn);margin:0 0 10px}
+.nbx-h .ic{flex:0 0 auto;width:19px;height:19px;border-radius:6px;background:var(--warn);color:var(--warnbg);
+  font-size:12px;font-weight:800;display:grid;place-items:center;line-height:1}
+.nbx ul{list-style:none;margin:0;padding:0}
+.nbx li{position:relative;padding-left:12px;margin-bottom:7px;font-size:12px;font-weight:600;line-height:1.68;color:var(--warn)}
+.nbx li:last-child{margin-bottom:0}
+.nbx li::before{content:"·";position:absolute;left:1px;top:-1px;font-weight:800}
+.nbx li b{font-weight:800}
+.nbx .nbx-f{margin:11px 0 0;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--warn) 32%,transparent);
+  font-size:12px;font-weight:700;line-height:1.72;color:var(--warn)}
+.nbx .nbx-f b{font-weight:800}
+
+/* ── 모바일 하단 바 ── */
+#mbar{position:fixed;left:0;right:0;bottom:0;z-index:50;transform:translateY(115%);transition:transform .22s;
+  background:var(--card);border-top:1px solid var(--line);box-shadow:0 -8px 22px -14px rgba(0,0,0,.55);
+  padding:9px 14px calc(9px + env(safe-area-inset-bottom))}
+#mbar.on{transform:none}
+#mbar .in{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:10px}
+#mbar .k{flex:1 1 auto;min-width:0;font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.03em}
+#mbar .k b{display:block;font-size:13.5px;font-weight:800;color:var(--fg);letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mbar .go{flex:0 0 auto;font:inherit;font-size:13px;font-weight:800;color:#fff;padding:10px 15px;border-radius:999px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));min-height:42px}
+@media (prefers-color-scheme:dark){#mbar .go{color:var(--afg)}}
+@media (min-width:980px){#mbar{display:none}}
+
+#toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#151b2b;color:#fff;font-size:13.5px;font-weight:700;line-height:1.5;
+  padding:10px 16px;border-radius:14px;width:max-content;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-color-scheme:dark){#toast{background:#e8edf8;color:#0b1430}}
+
+@media (max-width:430px){
+  .lab{flex-direction:column;align-items:stretch;gap:2px}
+  .lab .hint{text-align:left}
+  .card{padding:14px}
+  .seg button{font-size:13px;min-width:0}
+  .rgrid button{font-size:13px}
+  .tag{font-size:14px}
+  .rsbox{padding-left:0}
+  .tgrid button b{font-size:14px}
+}
+/* ══════════ 메뉴 추천기 전용 ══════════ */
+.gp{font-size:13.5px;font-weight:600;color:var(--muted);line-height:1.75;margin:10px 0 0}
+.gp b{color:var(--fg);font-weight:800}
+.row.first{margin-top:0}
+.pc-only{display:none}
+@media (min-width:980px){.pc-only{display:inline}.m-only{display:none}}
+.btn.big{display:flex;width:100%;margin-top:14px;min-height:58px;font-size:17px}
+.sh{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.07em;margin:18px 0 8px}
+.sh .shn{font-weight:700;letter-spacing:0}
+.fc{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:6px;padding:0 5px;margin-left:4px;
+  background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);letter-spacing:0;font-size:11.5px}
+.seg.sm button{min-height:40px;font-size:12.5px;padding:6px 4px;min-width:0}
+
+/* ── 고르는 방법 탭 ── 다섯 칸 */
+.modebar{margin-top:14px}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:var(--shadow)}
+.tabs button{border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;font-weight:800;
+  padding:10px 4px;border-radius:12px;cursor:pointer;min-height:64px;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
+.tabs button .i{font-size:20px;line-height:1}
+.tabs button:hover{border-color:var(--accent)}
+.tabs button.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+@media (min-width:600px){.tabs button{flex-direction:row;gap:8px;min-height:52px;font-size:14.5px}}
+
+/* ── 뽑기 칸 ── */
+.slot{margin-top:16px;border:1px dashed color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent) 5%,var(--card2));
+  min-height:116px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px}
+.slot .se{font-size:46px;line-height:1.1}
+.slot .sn{font-size:19px;font-weight:900;letter-spacing:-.02em;color:var(--muted);text-align:center}
+.slot.spin .sn{color:var(--fg)}
+.slot.got .sn{color:var(--accent);font-size:22px}
+.cnt{margin:-4px 0 12px;font-size:13px;font-weight:700;color:var(--muted)}
+.cnt b{color:var(--accent);font-weight:900;font-size:15px}
+.cnt.zero{color:var(--danger)}
+.cnt button{font:inherit;font-size:12.5px;font-weight:800;color:var(--accent);background:none;border:0;padding:8px 4px;cursor:pointer;text-decoration:underline}
+.chips button{min-height:38px}
+.chips.no button.on{border-color:var(--danger);color:var(--danger);background:color-mix(in srgb,var(--danger) 8%,transparent);text-decoration:line-through}
+
+/* ── 결과 ── */
+#resCard{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.rbig{display:flex;align-items:center;gap:14px}
+.rbig .re{flex:0 0 auto;width:76px;height:76px;border-radius:20px;display:grid;place-items:center;font-size:44px;line-height:1;
+  background:color-mix(in srgb,var(--accent) 10%,var(--card2))}
+.rbig .rt{min-width:0}
+.rbig .rt b{display:block;font-size:27px;font-weight:900;letter-spacing:-.03em;line-height:1.25;color:var(--accent)}
+.rbig .rt span{display:block;font-size:14px;font-weight:600;color:var(--muted);line-height:1.55;margin-top:3px}
+.rmeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.rmeta span{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--muted)}
+.rmeta span.k{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.why{list-style:none;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:700;line-height:1.7}
+.why:empty{display:none}
+.why li::before{content:"✓ "}
+.alts{margin-top:14px}
+.alts:empty{display:none}
+.alts .ah{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:6px}
+.alts .ab{display:flex;gap:6px;flex-wrap:wrap}
+.alts button{flex:1 1 120px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;font-size:14px;font-weight:800;padding:9px 10px;border-radius:12px;cursor:pointer;min-height:44px}
+.alts button:hover{border-color:var(--accent)}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.links:empty{display:none}
+.links a{flex:1 1 140px;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:9px 12px;border-radius:12px;
+  border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));color:var(--accent);font-size:13.5px;font-weight:800;text-decoration:none;background:var(--card)}
+.links a:hover{background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+#btnOk.on{background:var(--okbg);color:var(--ok);border-color:var(--ok);box-shadow:none}
+
+/* ── 월드컵 ── */
+.cround{margin:0 0 10px;text-align:center;font-size:14px;font-weight:800;color:var(--muted)}
+.cround b{color:var(--accent);font-size:17px}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.vs .vx{align-self:center;font-size:14px;font-weight:900;color:var(--accent2)}
+.vs button{border:2px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;border-radius:16px;padding:16px 8px;cursor:pointer;min-height:150px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;transition:.15s}
+.vs button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--card2))}
+.vs button .e{font-size:44px;line-height:1}
+.vs button b{font-size:18px;font-weight:900;letter-spacing:-.02em;line-height:1.3}
+.vs button small{font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.5}
+
+/* ── 여럿이 ── */
+.glist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}
+@media (min-width:600px){.glist{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.glist button{border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;font-size:15px;font-weight:800;padding:10px;border-radius:12px;cursor:pointer;
+  min-height:52px;text-align:left;display:flex;align-items:center;gap:8px;min-width:0}
+.glist button .e{font-size:22px;flex:0 0 auto}
+.glist button:hover{border-color:var(--accent)}
+.glist button.x{opacity:.45;text-decoration:line-through;background:transparent}
+.glist button.win{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)}
+
+/* ── 친구가 보낸 후보 ── */
+#vote{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.vb{border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;font-size:16px;font-weight:900;padding:12px 10px;border-radius:12px;cursor:pointer;min-height:56px}
+.vb:hover{border-color:var(--accent)}
+.vb.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)}
+.vmsg{margin:14px 0 0;font-size:15px;font-weight:700;line-height:1.6}
+.vmsg b{color:var(--accent);font-weight:900}
+
+/* ── 냉장고 ── */
+.ig{margin-top:12px}
+.ig .igh{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+.ig .chips{margin-top:6px}
+.frg{margin-top:10px}
+.frg .frh{font-size:13px;font-weight:800;margin:14px 0 6px}
+.frg .frh em{font-style:normal;color:var(--accent)}
+.fl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.fl button{width:100%;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;text-align:left;padding:9px 12px;border-radius:12px;cursor:pointer;min-height:48px;
+  display:flex;align-items:center;gap:10px}
+.fl button:hover{border-color:var(--accent)}
+.fl .e{font-size:22px;flex:0 0 auto}
+.fl .t{flex:1 1 auto;min-width:0}
+.fl .t b{display:block;font-size:14.5px;font-weight:800}
+.fl .t small{display:block;font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.5}
+.fl .t small i{font-style:normal;color:var(--warn);font-weight:800}
+.fl .m{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--muted)}
+.frempty{font-size:13px;font-weight:600;color:var(--muted);line-height:1.7;margin:0}
+
+/* ── 일주일 ── */
+.wk{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wk li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:6px 6px 6px 10px;min-height:56px}
+.wk li.lk{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--card2))}
+.wk .d{flex:0 0 auto;width:30px;font-size:13px;font-weight:900;color:var(--muted);text-align:center}
+.wk .d.we{color:var(--danger)}
+.wk .mn{flex:1 1 auto;min-width:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:8px}
+.wk .mn .e{font-size:22px;flex:0 0 auto}
+.wk .mn b{display:block;font-size:15px;font-weight:800}
+.wk .mn small{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
+.wk .out{font-size:10.5px;font-weight:800;color:var(--info);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:1px}
+.ib{flex:0 0 auto;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;
+  font:inherit;font-size:16px;line-height:1;display:grid;place-items:center;padding:0}
+.ib:hover{border-color:var(--accent)}
+.ib.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.shop{display:flex;flex-wrap:wrap;gap:6px}
+.shop span{font-size:13px;font-weight:700;padding:6px 11px;border-radius:999px;background:var(--card2);border:1px solid var(--line)}
+.shop span.have{opacity:.5;text-decoration:line-through}
+.shop span em{font-style:normal;color:var(--muted);font-size:11px;margin-left:3px}
+
+/* ── 먹은 기록 ── */
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.hist:empty{display:none}
+.hist li{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;padding:4px 4px 4px 10px;border-radius:10px;background:var(--card2);border:1px solid var(--line)}
+.hist li .hd{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--muted);width:62px}
+.hist li .hn{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist li .ib{width:36px;height:36px;font-size:13px}
+
+/* ── 상황별 모음 ── */
+.ml{margin-top:16px}
+.ml:first-of-type{margin-top:4px}
+.ml h3{font-size:15px;font-weight:800;margin:0 0 8px}
+.ml h3 span{font-size:12px;font-weight:600;color:var(--muted);margin-left:6px}
+.mchips{display:flex;flex-wrap:wrap;gap:6px}
+.mchips button{border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;font-size:13px;font-weight:700;padding:7px 11px;border-radius:999px;cursor:pointer;min-height:38px}
+.mchips button:hover{border-color:var(--accent);color:var(--accent)}
+#guide h3{font-size:15px;font-weight:800;margin:20px 0 10px}
+
+#mbar .k b{color:var(--accent)}
+
+@media (max-width:430px){
+  .tabs{gap:3px;padding:5px}
+  .tabs button{min-height:58px;font-size:12px;padding:8px 0;letter-spacing:-.03em}
+  .tabs button .i{font-size:18px}
+  .seg button{min-width:0;padding:9px 4px;font-size:13px}
+  .rbig .rt b{font-size:23px}
+  .rbig .re{width:64px;height:64px;font-size:38px}
+  .vs button{min-height:136px;padding:12px 4px}
+  .vs button b{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 네이버·카카오 앱 안에서 열렸을 때만 보이는 띠 (body.inapp) -->
+<div class="iabar" id="iabar">
+  <div class="ia-t"><span id="iaMsg">앱 안에서는 그림 저장이 안 될 수 있어요.</span>
+    <small id="iaSub">메뉴 뽑기·복사는 그대로 됩니다.</small></div>
+  <button class="ia-go" id="iaGo" type="button">크롬에서 열기</button>
+  <button class="ia-x" id="iaX" type="button" aria-label="안내 닫기">✕</button>
+</div>
+
+<header>
+  <div class="logo"><span class="ico">🍱</span><span>오늘 뭐 먹지?</span></div>
+  <p class="tag"><b>누르면 오늘 메뉴가 나와요</b> · <span class="nw">점심</span> · <span class="nw">저녁</span> · <span class="nw">아침</span> · <span class="nw">야식</span> · <span class="nw">냉장고 재료로</span></p>
+  <div class="badges">
+    <span class="badge">🎲 메뉴 랜덤 추천</span>
+    <span class="badge gray">메뉴 164가지</span>
+    <span class="badge gray">메뉴 월드컵</span>
+    <span class="badge gray">일주일 식단 · 장보기</span>
+    <span class="badge gray">무료 · 설치·가입 없음</span>
+  </div>
+</header>
+
+<!-- 친구가 보낸 후보 링크로 들어왔을 때 -->
+<section class="card hide" id="vote">
+  <h2><span id="voteTitle">친구가 묻는 메뉴</span><button class="mini" id="voteX" type="button">닫기</button></h2>
+  <p class="gp" style="margin-top:0" id="voteLead">친구가 뭐 먹을지 물어봐요. <b>먹고 싶은 하나</b>를 눌러 주세요.</p>
+  <div class="vlist" id="voteList"></div>
+  <div class="hide" id="voteRes">
+    <p class="vmsg" id="voteMsg"></p>
+    <div class="actions">
+      <button class="btn pri" id="voteSend" type="button">💬 답장 보내기</button>
+      <button class="btn" id="voteMine" type="button">나도 메뉴 뽑기</button>
+    </div>
+  </div>
+</section>
+
+<nav class="modebar" aria-label="고르는 방법">
+  <div class="tabs" role="tablist" data-seg="mode">
+    <button type="button" role="tab" data-v="pick" class="on"><span class="i">🎲</span>뽑기</button>
+    <button type="button" role="tab" data-v="cup"><span class="i">🏆</span>월드컵</button>
+    <button type="button" role="tab" data-v="group"><span class="i">👥</span>여럿이</button>
+    <button type="button" role="tab" data-v="fridge"><span class="i">🧊</span>냉장고</button>
+    <button type="button" role="tab" data-v="week"><span class="i">📅</span>일주일</button>
+  </div>
+</nav>
+
+<div class="layout">
+<main id="main">
+  <!-- 🎲 뽑기 -->
+  <section class="card pane" id="pPick">
+    <h2><span>오늘 메뉴 뽑기</span><span class="opt" id="pickInfo"></span></h2>
+    <div class="row first">
+      <div class="lab"><span>언제 먹어요?</span></div>
+      <div class="seg" data-seg="meal">
+        <button type="button" data-v="0">아침</button>
+        <button type="button" data-v="1">점심</button>
+        <button type="button" data-v="2">저녁</button>
+        <button type="button" data-v="3">야식</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>어떻게 먹어요?</span></div>
+      <div class="seg" data-seg="way">
+        <button type="button" data-v="-1">상관없음</button>
+        <button type="button" data-v="0">외식</button>
+        <button type="button" data-v="1">배달</button>
+        <button type="button" data-v="2">집밥</button>
+        <button type="button" data-v="3">간편식</button>
+      </div>
+    </div>
+    <div class="slot" id="slot" aria-live="polite"><span class="se" id="slotE">🍽️</span><span class="sn" id="slotN">단추를 눌러 보세요</span></div>
+    <button class="btn pri big" id="btnPick" type="button">🎲 오늘 메뉴 뽑기</button>
+    <p class="fine"><span class="pc-only">오른쪽</span><span class="m-only">아래</span> 「조건」에서 땡기는 맛·상황·못 먹는 것을 고르면 거기에 맞는 메뉴만 나와요. 같은 메뉴가 연달아 나오지 않게 했어요.</p>
+  </section>
+
+  <!-- 🏆 월드컵 -->
+  <section class="card pane hide" id="pCup">
+    <h2><span>메뉴 월드컵</span><span class="opt" id="cupInfo"></span></h2>
+    <div id="cupSet">
+      <p class="gp" style="margin-top:0">조건에 맞는 메뉴 가운데 몇 가지를 뽑아 둘씩 붙여요. <b>더 먹고 싶은 쪽</b>을 누르다 보면 오늘 메뉴가 남아요.</p>
+      <div class="seg" data-seg="cupn" style="margin-top:12px">
+        <button type="button" data-v="8" class="on">8강</button>
+        <button type="button" data-v="16">16강</button>
+      </div>
+      <button class="btn pri big" id="cupStart" type="button">🏆 월드컵 시작</button>
+    </div>
+    <div class="hide" id="cupPlay">
+      <p class="cround" id="cupRound"></p>
+      <div class="vs" id="cupVs"></div>
+      <div class="actions">
+        <button class="btn" id="cupNone" type="button">🙅 둘 다 별로</button>
+        <button class="btn" id="cupStop" type="button">처음부터</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 👥 여럿이 -->
+  <section class="card pane hide" id="pGroup">
+    <h2><span>여럿이 고르기</span><span class="opt" id="grpInfo"></span></h2>
+    <p class="gp" style="margin-top:0">후보 12개가 나와요. <b>싫은 메뉴를 눌러 지우고</b>, 남은 것 가운데 하나를 뽑거나 링크로 친구들에게 물어보세요.</p>
+    <div class="glist" id="grpList"></div>
+    <div class="actions">
+      <button class="btn pri" id="grpPick" type="button">🎲 남은 메뉴에서 뽑기</button>
+      <button class="btn" id="grpNew" type="button">🔄 새 후보 12개</button>
+      <button class="btn" id="grpAsk" type="button">💌 친구에게 묻기</button>
+    </div>
+    <p class="cnote" id="grpNote"></p>
+  </section>
+
+  <!-- 🧊 냉장고 -->
+  <section class="card pane hide" id="pFridge">
+    <h2><span>냉장고 재료로 찾기</span><button class="mini" id="frClear" type="button">모두 지우기</button></h2>
+    <p class="gp" style="margin-top:0">집에 있는 재료를 누르세요. <b>그 재료로 만들 수 있는 집밥</b>을, 모자란 재료가 적은 순서로 보여 드려요. 고른 재료는 이 브라우저에 기억해 둬요.</p>
+    <label class="chk"><input type="checkbox" id="frBasic" checked><span>밥·고추장·된장은 있다고 보기<span class="d">간장·소금·설탕·마늘·고춧가루·참기름·식용유 같은 기본 양념은 늘 있다고 봐요</span></span></label>
+    <div id="frIng"></div>
+    <h3 class="sh" id="frHead">만들 수 있는 메뉴</h3>
+    <div id="frRes"></div>
+  </section>
+
+  <!-- 📅 일주일 -->
+  <section class="card pane hide" id="pWeek">
+    <h2><span>일주일 식단 짜기</span><span class="opt">하루씩 바꿀 수 있어요</span></h2>
+    <div class="grid2">
+      <div><div class="lab"><span>며칠</span></div>
+        <div class="seg" data-seg="wdays"><button type="button" data-v="5" class="on">평일 5일</button><button type="button" data-v="7">7일</button></div></div>
+      <div><div class="lab"><span>끼니</span></div>
+        <div class="seg" data-seg="wmeal"><button type="button" data-v="2" class="on">저녁</button><button type="button" data-v="1">점심</button></div></div>
+      <div><div class="lab"><span>외식·배달 하는 날</span></div>
+        <div class="seg" data-seg="wout"><button type="button" data-v="0">없음</button><button type="button" data-v="1" class="on">하루</button><button type="button" data-v="2">이틀</button></div></div>
+    </div>
+    <button class="btn pri big" id="wkGo" type="button">📅 식단 짜기</button>
+    <div class="hide" id="wkOut">
+      <ol class="wk" id="wkList"></ol>
+      <p class="fine">🔒을 누르면 그날 메뉴는 그대로 두고, 🔄은 그날만 다시 골라요. 같은 고기·해산물이 이틀 연달아 나오지 않게 짰어요.</p>
+      <h3 class="sh">장보기 목록 <span class="shn" id="wkShopN"></span></h3>
+      <div class="shop" id="wkShop"></div>
+      <p class="fine" id="wkShopNote"></p>
+      <div class="actions">
+        <button class="btn pri" id="wkPng" type="button">🖼️ 식단표 그림 저장 (PNG)</button>
+        <button class="btn" id="wkCopy" type="button">📋 글로 복사</button>
+        <button class="btn" id="wkAgain" type="button">🔄 잠그지 않은 날 다시</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 결과 — 어느 방법으로 골라도 여기에 나온다 -->
+  <section class="card hide" id="resCard">
+    <h2><span id="resHead">오늘의 메뉴</span><span class="opt" id="resFrom"></span></h2>
+    <div class="rbig">
+      <span class="re" id="resE"></span>
+      <div class="rt"><b id="resN"></b><span id="resD"></span></div>
+    </div>
+    <div class="rmeta" id="resMeta"></div>
+    <ul class="why" id="resWhy"></ul>
+    <div class="actions">
+      <button class="btn pri" id="btnOk" type="button">✅ 이걸로 정했어요</button>
+      <button class="btn" id="btnAgain" type="button">🎲 다시 뽑기</button>
+    </div>
+    <div class="alts" id="resAlts"></div>
+    <div class="links" id="resLinks"></div>
+    <div class="actions">
+      <button class="btn" id="btnShare" type="button">💬 친구에게 보내기</button>
+      <button class="btn" id="btnPng" type="button">🖼️ 메뉴 카드 저장</button>
+    </div>
+  </section>
+</main>
+
+<aside class="side" id="side">
+  <section class="card" id="cOpt">
+    <h2><span>조건 <b class="fc" id="optN">0</b></span><button class="mini" id="optReset" type="button">조건 비우기</button></h2>
+    <p class="cnt" id="candN"></p>
+    <div class="row first">
+      <div class="lab"><span>누구랑</span></div>
+      <div class="seg sm" data-seg="who">
+        <button type="button" data-v="" class="on">상관없음</button>
+        <button type="button" data-v="혼밥">혼자</button>
+        <button type="button" data-v="데이트">둘이</button>
+        <button type="button" data-v="가족">가족</button>
+        <button type="button" data-v="회식">여럿이</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>땡기는 것</span><span class="hint">하나라도 맞으면</span></div>
+      <div class="chips" id="cWant"></div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>상황</span><span class="hint">모두 맞는 것만</span></div>
+      <div class="chips" id="cSit"></div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>종류</span><span class="hint">안 고르면 전부</span></div>
+      <div class="chips" id="cCat"></div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>빼기</span><span class="hint">못 먹거나 싫은 것</span></div>
+      <div class="chips no" id="cEx"></div>
+    </div>
+    <div class="row">
+      <div class="lab"><span>최근에 먹은 것 빼기</span><span class="hint">「정했어요」 기록으로</span></div>
+      <div class="seg sm" data-seg="recent">
+        <button type="button" data-v="0">안 뺌</button>
+        <button type="button" data-v="3" class="on">3일</button>
+        <button type="button" data-v="7">7일</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="histCard">
+    <h2><span>먹은 기록 <b class="fc" id="histN">0</b></span><button class="mini" id="histClear" type="button">모두 지우기</button></h2>
+    <p class="gp" id="histEmpty" style="margin-top:0">메뉴를 고른 뒤 <b>이걸로 정했어요</b>를 누르면 날짜와 함께 남아요. 최근에 먹은 메뉴는 뽑기에서 빼 드려요.</p>
+    <ul class="hist" id="histList"></ul>
+  </section>
+</aside>
+</div>
+
+<section class="card hide" id="doneCard">
+  <h2><span>저장했습니다</span><button class="mini" id="doneHide" type="button">닫기</button></h2>
+  <p class="dmsg" id="doneMsg"></p>
+  <ol class="dsteps" id="doneSteps"></ol>
+  <p class="dwarn hide" id="doneInapp">그림이 안 보이면 앱 안 브라우저라서 그래요. <button type="button" id="doneGo">크롬에서 열기</button></p>
+</section>
+
+<section class="card" id="lists">
+  <h2><span>상황별 메뉴 추천 모음</span><span class="opt">누르면 자세히</span></h2>
+  <p class="gp" style="margin-top:0">자주 찾는 상황마다 많이 먹는 메뉴를 모았어요. 메뉴를 누르면 위 결과 칸에서 만드는 시간·고른 까닭을 보고, 레시피나 근처 식당을 찾을 수 있어요.</p>
+  
+  <div class="ml"><h3>아침 메뉴 추천 <span>가볍고 빨리 먹을 수 있는 아침</span></h3><div class="mchips"><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="김밥">🍙 김밥</button><button type="button" data-n="토스트">🥪 토스트</button><button type="button" data-n="미역국">🥣 미역국</button><button type="button" data-n="북엇국">🥣 북엇국</button><button type="button" data-n="떡국">🥣 떡국</button><button type="button" data-n="뼈해장국">🥣 뼈해장국</button><button type="button" data-n="설렁탕">🥣 설렁탕</button><button type="button" data-n="콩나물국밥">🥣 콩나물국밥</button><button type="button" data-n="간장계란밥">🍚 간장계란밥</button><button type="button" data-n="주먹밥">🍙 주먹밥</button><button type="button" data-n="계란말이">🥚 계란말이</button><button type="button" data-n="계란찜">🥚 계란찜</button><button type="button" data-n="소고기야채죽">🥣 소고기야채죽</button><button type="button" data-n="계란볶음밥">🍳 계란볶음밥</button><button type="button" data-n="유부초밥">🍣 유부초밥</button></div></div>
+  <div class="ml"><h3>점심 메뉴 추천 <span>직장인·학생 점심으로 많이 찾는 메뉴</span></h3><div class="mchips"><button type="button" data-n="김치찌개">🍲 김치찌개</button><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="부대찌개">🍲 부대찌개</button><button type="button" data-n="김치볶음밥">🍳 김치볶음밥</button><button type="button" data-n="제육볶음">🥩 제육볶음</button><button type="button" data-n="김밥">🍙 김밥</button><button type="button" data-n="떡볶이">🌶️ 떡볶이</button><button type="button" data-n="토스트">🥪 토스트</button><button type="button" data-n="짜장면">🍝 짜장면</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="마라탕">🌶️ 마라탕</button><button type="button" data-n="초밥">🍣 초밥</button><button type="button" data-n="돈가스">🍖 돈가스</button><button type="button" data-n="햄버거">🍔 햄버거</button></div></div>
+  <div class="ml"><h3>저녁 메뉴 추천 <span>집에서 해 먹거나 외식하기 좋은 저녁</span></h3><div class="mchips"><button type="button" data-n="김치찌개">🍲 김치찌개</button><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="부대찌개">🍲 부대찌개</button><button type="button" data-n="김치볶음밥">🍳 김치볶음밥</button><button type="button" data-n="제육볶음">🥩 제육볶음</button><button type="button" data-n="삼겹살">🥓 삼겹살</button><button type="button" data-n="족발">🍖 족발</button><button type="button" data-n="짜장면">🍝 짜장면</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="마라탕">🌶️ 마라탕</button><button type="button" data-n="초밥">🍣 초밥</button><button type="button" data-n="돈가스">🍖 돈가스</button><button type="button" data-n="치킨">🍗 치킨</button><button type="button" data-n="피자">🍕 피자</button></div></div>
+  <div class="ml"><h3>간단한 저녁 메뉴 <span>집에서 20분 안에 만드는 저녁</span></h3><div class="mchips"><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="김치볶음밥">🍳 김치볶음밥</button><button type="button" data-n="삼겹살">🥓 삼겹살</button><button type="button" data-n="참치김치찌개">🍲 참치김치찌개</button><button type="button" data-n="떡국">🥣 떡국</button><button type="button" data-n="비빔밥">🍚 비빔밥</button><button type="button" data-n="오징어볶음">🦑 오징어볶음</button><button type="button" data-n="생선구이">🐟 생선구이</button><button type="button" data-n="계란말이">🥚 계란말이</button><button type="button" data-n="계란찜">🥚 계란찜</button><button type="button" data-n="소시지야채볶음">🌭 소시지야채볶음</button><button type="button" data-n="김치전">🥞 김치전</button><button type="button" data-n="잔치국수">🍜 잔치국수</button><button type="button" data-n="물냉면">🍜 물냉면</button><button type="button" data-n="비빔냉면">🍜 비빔냉면</button></div></div>
+  <div class="ml"><h3>야식 추천 <span>늦은 밤 배달·간단 야식</span></h3><div class="mchips"><button type="button" data-n="김치볶음밥">🍳 김치볶음밥</button><button type="button" data-n="삼겹살">🥓 삼겹살</button><button type="button" data-n="족발">🍖 족발</button><button type="button" data-n="떡볶이">🌶️ 떡볶이</button><button type="button" data-n="라면">🍜 라면</button><button type="button" data-n="짜장면">🍝 짜장면</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="마라탕">🌶️ 마라탕</button><button type="button" data-n="치킨">🍗 치킨</button><button type="button" data-n="피자">🍕 피자</button><button type="button" data-n="햄버거">🍔 햄버거</button><button type="button" data-n="감자탕">🍖 감자탕</button><button type="button" data-n="뼈해장국">🥣 뼈해장국</button><button type="button" data-n="간장계란밥">🍚 간장계란밥</button><button type="button" data-n="주먹밥">🍙 주먹밥</button></div></div>
+  <div class="ml"><h3>도시락 메뉴 <span>식어도 맛있고 싸 가기 좋은 메뉴</span></h3><div class="mchips"><button type="button" data-n="제육볶음">🥩 제육볶음</button><button type="button" data-n="김밥">🍙 김밥</button><button type="button" data-n="토스트">🥪 토스트</button><button type="button" data-n="돈가스">🍖 돈가스</button><button type="button" data-n="불고기">🥩 불고기</button><button type="button" data-n="주먹밥">🍙 주먹밥</button><button type="button" data-n="계란말이">🥚 계란말이</button><button type="button" data-n="소시지야채볶음">🌭 소시지야채볶음</button><button type="button" data-n="카레라이스">🍛 카레라이스</button><button type="button" data-n="참치마요덮밥">🍚 참치마요덮밥</button><button type="button" data-n="유부초밥">🍣 유부초밥</button><button type="button" data-n="샌드위치">🥪 샌드위치</button><button type="button" data-n="떡갈비">🥩 떡갈비</button><button type="button" data-n="참치김밥">🍙 참치김밥</button><button type="button" data-n="함박스테이크">🍖 함박스테이크</button></div></div>
+  <div class="ml"><h3>혼밥 메뉴 <span>혼자 먹기 편한 한 그릇</span></h3><div class="mchips"><button type="button" data-n="김치찌개">🍲 김치찌개</button><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="김치볶음밥">🍳 김치볶음밥</button><button type="button" data-n="김밥">🍙 김밥</button><button type="button" data-n="떡볶이">🌶️ 떡볶이</button><button type="button" data-n="라면">🍜 라면</button><button type="button" data-n="토스트">🥪 토스트</button><button type="button" data-n="짜장면">🍝 짜장면</button><button type="button" data-n="마라탕">🌶️ 마라탕</button><button type="button" data-n="돈가스">🍖 돈가스</button><button type="button" data-n="햄버거">🍔 햄버거</button><button type="button" data-n="쌀국수">🍜 쌀국수</button><button type="button" data-n="참치김치찌개">🍲 참치김치찌개</button><button type="button" data-n="뼈해장국">🥣 뼈해장국</button><button type="button" data-n="순대국">🥣 순대국</button></div></div>
+  <div class="ml"><h3>다이어트 메뉴 <span>부담이 적은 가벼운 메뉴</span></h3><div class="mchips"><button type="button" data-n="비빔밥">🍚 비빔밥</button><button type="button" data-n="소고기야채죽">🥣 소고기야채죽</button><button type="button" data-n="잔치국수">🍜 잔치국수</button><button type="button" data-n="샤브샤브">🥘 샤브샤브</button><button type="button" data-n="닭가슴살샐러드">🥗 닭가슴살샐러드</button><button type="button" data-n="샌드위치">🥪 샌드위치</button><button type="button" data-n="콩나물국">🥣 콩나물국</button><button type="button" data-n="두부조림">🥢 두부조림</button><button type="button" data-n="단호박죽">🎃 단호박죽</button><button type="button" data-n="누룽지">🥣 누룽지</button><button type="button" data-n="군고구마">🍠 군고구마</button><button type="button" data-n="회덮밥">🐟 회덮밥</button><button type="button" data-n="막국수">🍜 막국수</button><button type="button" data-n="포케">🥗 포케</button><button type="button" data-n="크림수프">🥣 크림수프</button><button type="button" data-n="베이글">🥯 베이글</button></div></div>
+  <div class="ml"><h3>해장 메뉴 <span>속을 풀어 주는 국물</span></h3><div class="mchips"><button type="button" data-n="라면">🍜 라면</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="쌀국수">🍜 쌀국수</button><button type="button" data-n="북엇국">🥣 북엇국</button><button type="button" data-n="감자탕">🍖 감자탕</button><button type="button" data-n="뼈해장국">🥣 뼈해장국</button><button type="button" data-n="순대국">🥣 순대국</button><button type="button" data-n="돼지국밥">🥣 돼지국밥</button><button type="button" data-n="콩나물국밥">🥣 콩나물국밥</button><button type="button" data-n="소고기야채죽">🥣 소고기야채죽</button><button type="button" data-n="동태찌개">🐟 동태찌개</button><button type="button" data-n="콩나물국">🥣 콩나물국</button></div></div>
+  <div class="ml"><h3>비 오는 날 메뉴 <span>빗소리에 생각나는 전과 국물</span></h3><div class="mchips"><button type="button" data-n="김치찌개">🍲 김치찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="부대찌개">🍲 부대찌개</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="육개장">🌶️ 육개장</button><button type="button" data-n="해물파전">🥞 해물파전</button><button type="button" data-n="김치전">🥞 김치전</button><button type="button" data-n="칼국수">🍜 칼국수</button><button type="button" data-n="감자전">🥔 감자전</button><button type="button" data-n="부추전">🥞 부추전</button><button type="button" data-n="수제비">🥣 수제비</button></div></div>
+  <div class="ml"><h3>추운 날 메뉴 <span>몸이 녹는 뜨끈한 국물</span></h3><div class="mchips"><button type="button" data-n="김치찌개">🍲 김치찌개</button><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="순두부찌개">🍲 순두부찌개</button><button type="button" data-n="부대찌개">🍲 부대찌개</button><button type="button" data-n="짬뽕">🍜 짬뽕</button><button type="button" data-n="마라탕">🌶️ 마라탕</button><button type="button" data-n="떡국">🥣 떡국</button><button type="button" data-n="감자탕">🍖 감자탕</button><button type="button" data-n="뼈해장국">🥣 뼈해장국</button><button type="button" data-n="순대국">🥣 순대국</button><button type="button" data-n="돼지국밥">🥣 돼지국밥</button><button type="button" data-n="설렁탕">🥣 설렁탕</button><button type="button" data-n="육개장">🌶️ 육개장</button><button type="button" data-n="칼국수">🍜 칼국수</button><button type="button" data-n="어묵탕">🍢 어묵탕</button><button type="button" data-n="우동">🍜 우동</button></div></div>
+  <div class="ml"><h3>아이와 먹기 좋은 메뉴 <span>맵지 않고 부드러운 메뉴</span></h3><div class="mchips"><button type="button" data-n="된장찌개">🍲 된장찌개</button><button type="button" data-n="김밥">🍙 김밥</button><button type="button" data-n="토스트">🥪 토스트</button><button type="button" data-n="짜장면">🍝 짜장면</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="돈가스">🍖 돈가스</button><button type="button" data-n="치킨">🍗 치킨</button><button type="button" data-n="피자">🍕 피자</button><button type="button" data-n="미역국">🥣 미역국</button><button type="button" data-n="떡국">🥣 떡국</button><button type="button" data-n="설렁탕">🥣 설렁탕</button><button type="button" data-n="불고기">🥩 불고기</button><button type="button" data-n="간장계란밥">🍚 간장계란밥</button><button type="button" data-n="주먹밥">🍙 주먹밥</button><button type="button" data-n="생선구이">🐟 생선구이</button><button type="button" data-n="계란말이">🥚 계란말이</button></div></div>
+  <div class="ml"><h3>회식·모임 메뉴 <span>여럿이 나눠 먹기 좋은 메뉴</span></h3><div class="mchips"><button type="button" data-n="부대찌개">🍲 부대찌개</button><button type="button" data-n="제육볶음">🥩 제육볶음</button><button type="button" data-n="삼겹살">🥓 삼겹살</button><button type="button" data-n="족발">🍖 족발</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="치킨">🍗 치킨</button><button type="button" data-n="피자">🍕 피자</button><button type="button" data-n="감자탕">🍖 감자탕</button><button type="button" data-n="돼지갈비">🍖 돼지갈비</button><button type="button" data-n="보쌈">🥬 보쌈</button><button type="button" data-n="닭갈비">🍗 닭갈비</button><button type="button" data-n="찜닭">🍗 찜닭</button><button type="button" data-n="닭볶음탕">🍗 닭볶음탕</button><button type="button" data-n="회">🐟 회</button><button type="button" data-n="해물파전">🥞 해물파전</button><button type="button" data-n="마라샹궈">🌶️ 마라샹궈</button></div></div>
+  <div class="ml"><h3>술안주 메뉴 <span>한잔 곁들이기 좋은 안주</span></h3><div class="mchips"><button type="button" data-n="삼겹살">🥓 삼겹살</button><button type="button" data-n="족발">🍖 족발</button><button type="button" data-n="탕수육">🍖 탕수육</button><button type="button" data-n="치킨">🍗 치킨</button><button type="button" data-n="감자탕">🍖 감자탕</button><button type="button" data-n="소시지야채볶음">🌭 소시지야채볶음</button><button type="button" data-n="보쌈">🥬 보쌈</button><button type="button" data-n="회">🐟 회</button><button type="button" data-n="해물파전">🥞 해물파전</button><button type="button" data-n="김치전">🥞 김치전</button><button type="button" data-n="어묵탕">🍢 어묵탕</button><button type="button" data-n="마라샹궈">🌶️ 마라샹궈</button><button type="button" data-n="양꼬치">🍢 양꼬치</button><button type="button" data-n="해물탕">🦀 해물탕</button><button type="button" data-n="곱창전골">🥘 곱창전골</button><button type="button" data-n="주꾸미볶음">🐙 주꾸미볶음</button></div></div>
+  
+</section>
+
+<section class="card" id="guide">
+  <h2><span>메뉴 빨리 정하는 요령</span></h2>
+  <ol class="steps">
+    <li><b>먼저 「안 먹을 것」부터 지우기</b> — 무엇을 먹고 싶은지는 잘 안 떠올라도, 싫은 것은 바로 알아요. 「빼기」에서 매운 것·해산물처럼 못 먹는 것을 먼저 누르면 후보가 확 줄어요.</li>
+    <li><b>끼니와 먹는 방법을 정하기</b> — 「점심 · 외식」 「저녁 · 집밥」처럼 두 가지만 정해도 후보가 절반 아래로 줄어요. 집밥이면 결과에 만드는 시간과 난이도가 나와요.</li>
+    <li><b>뽑힌 메뉴에 마음이 어떤지 보기</b> — 뽑힌 메뉴를 보고 「아, 이건 아닌데」 싶으면 사실 먹고 싶은 것이 따로 있다는 뜻이에요. 그럴 땐 아래 「다른 후보」에서 고르세요.</li>
+    <li><b>여럿이면 지워 가며 고르기</b> — 「여럿이」에서 후보 12개를 띄우고 한 사람씩 싫은 것을 지우면, 누구 하나 억지로 먹지 않게 정할 수 있어요.</li>
+    <li><b>집밥은 일주일 단위로</b> — 저녁마다 고민하는 대신 「일주일」로 한 번에 짜고 장보기 목록을 챙기면, 장 보는 횟수도 남는 재료도 줄어요.</li>
+  </ol>
+  <h3>끼니마다 이렇게 골라 드려요</h3>
+  <div class="tbw"><table class="kt">
+    <thead><tr><th>끼니</th><th>주로 나오는 메뉴</th><th>고를 때 본 것</th></tr></thead>
+    <tbody>
+      <tr><td class="k">아침</td><td>토스트, 죽, 계란밥, 시리얼, 김밥</td><td>10분 안팎에 먹을 수 있는지, 속이 편한지</td></tr>
+      <tr><td class="k">점심</td><td>국밥, 찌개, 덮밥, 면, 백반</td><td>식당에서 혼자도 먹기 쉬운지, 빨리 나오는지</td></tr>
+      <tr><td class="k">저녁</td><td>찌개, 볶음, 구이, 전골, 집밥 반찬</td><td>집에서 만들기 쉬운지, 가족이 함께 먹기 좋은지</td></tr>
+      <tr><td class="k">야식</td><td>치킨, 족발, 떡볶이, 라면, 삼각김밥</td><td>배달·편의점으로 바로 먹을 수 있는지</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tnote">계절도 조금 봐요. 11~2월에는 뜨끈한 국물과 겨울 음식이, 6~8월에는 냉면·콩국수 같은 시원한 메뉴가 더 자주 나와요.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2><span>자주 묻는 질문</span></h2>
+  <details>
+    <summary>메뉴 추천기는 어떻게 쓰나요?</summary>
+    <p>끼니(아침·점심·저녁·야식)와 먹는 방법(외식·배달·집밥·간편식)을 고르고 <b>오늘 메뉴 뽑기</b>를 누르면 메뉴 하나가 나와요. 마음에 안 들면 <b>다시 뽑기</b>, 비슷한 다른 메뉴를 보려면 아래 <b>다른 후보</b>를 누르세요. 「조건」에서 땡기는 것·상황·빼고 싶은 것을 고르면 거기에 맞는 메뉴만 나옵니다.</p>
+  </details>
+  <details>
+    <summary>그냥 무작위인가요?</summary>
+    <p>조건에 맞는 메뉴 가운데서 무작위로 고르지만, 많이 먹는 메뉴가 조금 더 자주 나오게 무게를 두었어요. 방금 나온 메뉴, 최근 며칠 동안 <b>이걸로 정했어요</b>를 누른 메뉴는 덜 나오거나 빠지고, 계절에 맞는 메뉴(겨울엔 국물, 여름엔 냉면)가 조금 더 나와요.</p>
+  </details>
+  <details>
+    <summary>냉장고에 있는 재료로 메뉴를 찾을 수 있나요?</summary>
+    <p><b>냉장고</b>에서 집에 있는 재료를 누르면 그 재료로 만들 수 있는 집밥을 보여 드려요. 재료가 다 있는 메뉴부터, 하나·둘만 더 사면 되는 메뉴 순서로 나오고 무엇이 모자란지도 적어 둡니다. 간장·소금·마늘 같은 기본 양념은 있다고 봐요.</p>
+  </details>
+  <details>
+    <summary>메뉴 월드컵은 어떻게 하나요?</summary>
+    <p><b>월드컵</b>에서 8강이나 16강을 고르고 시작하면 메뉴 두 개가 나란히 나와요. 더 먹고 싶은 쪽을 누르면 다음 판으로 넘어가고, 마지막에 남은 메뉴가 오늘 메뉴예요. 둘 다 싫으면 <b>둘 다 별로</b>로 다른 메뉴로 바꿀 수 있어요.</p>
+  </details>
+  <details>
+    <summary>친구나 가족에게 뭐 먹을지 물어볼 수 있나요?</summary>
+    <p><b>여럿이</b>에서 싫은 메뉴를 지운 뒤 <b>친구에게 묻기</b>를 누르면, 남은 메뉴(최대 8개)가 담긴 링크가 만들어져요. 링크를 연 사람이 하나를 누르면 「○○ 먹자!」 답장을 바로 보낼 수 있어요. 결과 칸의 <b>친구에게 보내기</b>로 뽑힌 메뉴 하나만 보낼 수도 있어요.</p>
+  </details>
+  <details>
+    <summary>일주일 식단은 어떻게 짜 주나요?</summary>
+    <p>평일 5일이나 7일 동안 저녁(또는 점심) 메뉴를 한 번에 골라요. 같은 메뉴는 두 번 나오지 않고, <b>돼지고기·소고기·닭고기·해산물이 이틀 연달아 나오지 않게</b> 짭니다. 외식·배달하는 날을 하루나 이틀 넣을 수 있고, 집밥 날 재료를 모아 장보기 목록으로 보여 드려요.</p>
+  </details>
+  <details>
+    <summary>칼로리나 가격도 알려 주나요?</summary>
+    <p>아니요. 칼로리와 가격은 만드는 법, 양, 가게마다 크게 달라서 숫자로 적지 않았어요. 「다이어트」 조건은 기름지지 않고 부담이 적은 메뉴를 고른 것이지, 칼로리를 계산한 것은 아닙니다.</p>
+  </details>
+  <details>
+    <summary>먹은 기록이나 냉장고 재료는 어디에 저장되나요?</summary>
+    <p>조건, 먹은 기록, 냉장고 재료는 <b>이 기기의 이 브라우저에만</b> 남아요. 어디로도 보내지 않으며, 페이지를 연 뒤에는 인터넷 없이도 메뉴를 뽑을 수 있어요. 레시피·근처 식당 단추만 다른 사이트의 검색 화면을 엽니다.</p>
+  </details>
+</section>
+
+<!-- ══ 주의 문구 ══ -->
+<div class="nbx">
+  <div class="nbx-h"><span class="ic">!</span><span>먹기 전에 확인하세요</span></div>
+  <ul>
+    <li>주재료는 흔히 만드는 방법 기준이에요. 가게·레시피마다 들어가는 재료가 달라서 <b>알레르기가 있으면 꼭 직접 확인</b>하세요. 「빼기」는 이름에 드러나지 않는 양념·육수까지 걸러 주지는 못해요.</li>
+    <li>「아이」 조건은 맵지 않고 부드러운 메뉴를 고른 것이에요. 아기 이유식이나 특정 질환 식단으로 쓰지 마세요.</li>
+    <li>칼로리·영양·가격은 적지 않았어요. 식이 조절이 필요하면 의사·영양사와 상담하세요.</li>
+    <li>레시피·근처 식당 단추는 <b>다른 사이트의 검색 결과</b>를 새 창으로 열어요. 그곳에 나오는 가게 정보는 이 도구와 관계가 없어요.</li>
+  </ul>
+  <p class="nbx-f">이 도구는 <b>있는 그대로 제공되며</b>, 추천 메뉴를 먹고 생긴 일에 대해 <b>제작자와 운영자는 법적 책임을 지지 않습니다.</b> 특정 업체·상품을 알리지 않습니다.</p>
+</div>
+
+<footer>
+  <b>오늘 뭐 먹지 · 메뉴 추천기</b> · 저녁 메뉴 추천 · 점심 메뉴 추천 · 아침 메뉴 추천 · 야식 추천 · 간단한 저녁 메뉴 · 도시락 메뉴 · 메뉴 랜덤 · 메뉴 월드컵<br>
+  함께 보면 좋은 도구: <a href="https://hwj-hub.github.io/baby_food_plan/" target="_blank" rel="noopener">이유식 식단표 만들기</a> · <a href="https://hwj-hub.github.io/household_budget/" target="_blank" rel="noopener">가계부 만들기</a> · <a href="https://hwj-hub.github.io/prize_draw/" target="_blank" rel="noopener">추첨 프로그램</a> · <a href="https://hwj-hub.github.io/balance_game/" target="_blank" rel="noopener">밸런스 게임</a><br>
+  메뉴 164가지와 주재료는 이 도구가 직접 정리했습니다(2026년 11월) · 가게·상품 이름은 넣지 않았습니다<br>
+  고른 조건과 기록은 어디에도 전송되지 않으며, 페이지를 연 뒤에는 인터넷 없이도 동작합니다 · 외부 라이브러리 없음
+</footer>
+</div>
+
+<!-- 휴대폰 아래 띠 — 뽑기 단추가 화면 밖에 있을 때 -->
+<div id="mbar" aria-hidden="true">
+  <div class="in">
+    <div class="k">조건에 맞는 메뉴<b id="mbN"></b></div>
+    <button class="go" id="mbPick" type="button">🎲 뽑기</button>
+  </div>
+</div>
+
+<!-- 앱 안(네이버·카카오톡 등) 안내 창 — 메뉴는 앱 안에서도 되므로 띄우지 않는다(모듈이 참조만 한다) -->
+<div class="iamodal" id="iaModal" role="dialog" aria-modal="true" aria-labelledby="iaTitle">
+  <div class="iasheet">
+    <div class="iaic">📱</div>
+    <h2 id="iaTitle">앱 안에서는 그림이 저장되지 않을 수 있습니다</h2>
+    <p class="iap" id="iaDesc"></p>
+    <ol class="iasteps" id="iaSteps"></ol>
+    <button class="iabtn" id="iaGo2" type="button">크롬에서 열기</button>
+    <p class="iafine"><button type="button" id="iaStay">그냥 볼게요</button></p>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   오늘 뭐 먹지 · 메뉴 추천기 — 라이브러리 없이 순수 JS
+   메뉴 164가지(끼니·먹는 곳·특징·주재료)를 조건으로 거르고 무게를 둔 난수로 뽑는다.
+   랜덤 뽑기 · 메뉴 월드컵 · 여럿이 지우며 고르기(친구에게 묻는 링크는 # 뒤, 서버 없음) · 냉장고 재료로 · 일주일 식단
+   기억(조건·먹은 기록·냉장고 재료)은 이 브라우저(localStorage, menu_picker.)에만. 어디로도 보내지 않는다
+   ════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = s => String(s).replace(/[&<>"']/g, c => ESC[c]);
+let toastT = 0;
+function toast(msg, ms) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2600);
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+/* 배경 탭에서도 느려지지 않는 양보(타이머는 배경 탭에서 1초로 늘어난다) */
+const _ych = new MessageChannel(); const _yq = [];
+_ych.port1.onmessage = () => { const f = _yq.shift(); if (f) f(); };
+const yieldUI = () => new Promise(r => { _yq.push(r); _ych.port2.postMessage(0); });
+const FACES = {
+  sans: '"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Nanum Gothic","NanumGothic",sans-serif'
+};
+const canvasBlob = (cv, type, q) => new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('toBlob')), type || 'image/png', q));
+const coarse = () => window.matchMedia('(pointer:coarse)').matches;
+
+/* ── 기억 — 이 브라우저에만(localStorage, menu_picker. 로 시작). 조건·먹은 기록·냉장고 재료만 ── */
+const KP = 'menu_picker.';
+const lsGet = k => { try { return localStorage.getItem(KP + k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(KP + k, v); } catch (e) { /* 사생활 보호 창 등 — 기억만 못 한다 */ } };
+
+/* ── 복사 · 보내기 · 저장 ── */
+function copyText(s, msg) {
+  const done = () => toast(msg, 3200);
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(s).then(done, () => fallbackCopy(s, done)); return; }
+  } catch (e) { /* 아래로 */ }
+  fallbackCopy(s, done);
+}
+/* 휴대폰은 공유 창, 컴퓨터·앱 안은 복사 */
+async function sendLink(text, url) {
+  if (navigator.share && coarse() && !IA.on) {
+    try { await navigator.share({ text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  copyText(text + '\n' + url, '링크를 복사했어요. 단톡방이나 메시지 창에 붙여 넣으세요.');
+}
+function download(blob, name) {
+  if (IA.on) { downloadInApp(blob, name); return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+const safeName = s => String(s).replace(/[\\/:*?"<>|\s♥♡]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30) || '메뉴';
+
+/* 자동 생성 — build.py 가 menus.txt 에서 만든다. 손으로 고치지 말 것 */
+const CATN = ["한식", "중식", "일식", "양식", "분식", "아시아", "패스트푸드"];
+const MEALN = ["아침", "점심", "저녁", "야식"];
+const WAYN = ["외식", "배달", "집밥", "간편식"];
+const TAGS = ["국물", "면", "밥", "빵", "고기", "해산물", "채소", "매콤", "담백", "시원", "든든", "가볍", "빨리", "해장", "비", "추위", "다이어트", "도시락", "안주", "혼밥", "데이트", "가족", "아이", "회식", "날것", "겨울"];
+const ING = [["채소",["양파","대파","감자","고구마","당근","애호박","단호박","양배추","배추","무","버섯","콩나물","숙주","시금치","깻잎","부추","고추","오이","상추","양상추","파프리카","토마토","가지","미나리","옥수수"]],["고기",["돼지고기","삼겹살","다진고기","소고기","닭고기","햄","스팸","베이컨","소시지","순대","곱창","양고기"]],["해산물",["오징어","새우","생선","고등어","조개","굴","참치캔","어묵","낙지","주꾸미","멸치","연어","꽃게","북어","골뱅이"]],["달걀·두부",["달걀","두부","순두부","유부"]],["김치·장",["김치","고추장","된장","청국장","춘장","카레가루"]],["밥·면·빵",["밥","쌀","누룽지","떡","떡볶이떡","라면","소면","우동면","칼국수면","파스타면","당면","냉면","메밀면","쫄면","쌀국수면","중화면","만두","식빵","빵","또띠아","라이스페이퍼","밀가루","부침가루","오트밀","시리얼"]],["유제품",["우유","치즈","생크림","버터","요거트"]],["기타",["김","미역","들깨가루"]]];
+const ING_HOME = ["양파","대파","감자","고구마","당근","애호박","단호박","양배추","배추","무","버섯","콩나물","숙주","시금치","깻잎","부추","고추","오이","상추","양상추","파프리카","토마토","돼지고기","삼겹살","다진고기","소고기","닭고기","햄","스팸","베이컨","소시지","오징어","새우","생선","고등어","조개","참치캔","어묵","멸치","북어","달걀","두부","순두부","유부","김치","고추장","된장","청국장","춘장","카레가루","밥","쌀","누룽지","떡","떡볶이떡","라면","소면","우동면","칼국수면","파스타면","당면","냉면","만두","식빵","빵","또띠아","라이스페이퍼","밀가루","부침가루","오트밀","시리얼","우유","치즈","생크림","버터","요거트","김","미역"];
+const M = [
+["김치찌개","🍲",0,6,7,2671749,3,25,1,"김치 돼지고기 두부 대파 양파","잘 익은 김치와 돼지고기로 끓인 칼칼한 찌개","pork"],
+["된장찌개","🍲",0,7,5,6849797,3,20,1,"된장 두부 애호박 감자 양파 대파 버섯","애호박·두부를 넣어 구수하게 끓인 찌개",""],
+["순두부찌개","🍲",0,6,7,573605,3,20,1,"순두부 달걀 조개 대파 양파","순두부에 바지락을 넣어 얼큰하게 끓인 찌개","sea"],
+["부대찌개","🍲",0,6,7,10536085,3,25,1,"햄 소시지 김치 라면 두부 대파","햄·소시지에 라면 사리까지 넣은 얼큰한 찌개","pork wheat"],
+["청국장찌개","🍲",0,6,5,33588485,1,20,1,"청국장 두부 김치 애호박 대파","냄새는 진해도 맛은 구수한 겨울 찌개",""],
+["고추장찌개","🍲",0,6,4,33941,1,25,1,"고추장 돼지고기 감자 애호박 양파 대파","감자와 돼지고기를 고추장으로 끓인 얼큰한 찌개","pork"],
+["참치김치찌개","🍲",0,6,4,528549,2,15,1,"김치 참치캔 두부 양파 대파","참치 통조림 하나로 끓이는 자취생 찌개","sea"],
+["동태찌개","🐟",0,6,5,33595557,1,30,2,"생선 무 두부 대파 고추","동태와 무로 시원하게 끓인 얼큰한 찌개","sea"],
+["미역국","🥣",0,7,4,6291717,2,30,1,"미역 소고기","소고기를 볶아 넣고 끓인 담백한 미역국","beef"],
+["콩나물국","🥣",0,7,4,4272453,1,15,1,"콩나물 대파 고추","맑고 시원해 해장에도 좋은 콩나물국",""],
+["북엇국","🥣",0,3,5,12581,2,15,1,"북어 달걀 무 대파","북어채를 참기름에 볶아 끓인 해장국","sea"],
+["소고기뭇국","🥣",0,7,4,6324501,1,30,1,"소고기 무 대파","소고기와 무로 끓인 맑은 국","beef"],
+["떡국","🥣",0,7,5,6325521,2,20,1,"떡 소고기 달걀 대파 김","가래떡을 넣어 끓인 든든한 한 그릇","beef"],
+["만둣국","🥟",0,6,5,4228353,1,20,1,"만두 떡 달걀 대파","만두와 떡을 넣어 끓인 따끈한 국","wheat"],
+["감자탕","🍖",0,14,3,8692885,2,0,0,"돼지고기 감자 배추 들깨가루","돼지 등뼈와 감자를 푹 끓인 얼큰한 탕","pork"],
+["뼈해장국","🥣",0,11,1,566421,2,0,0,"돼지고기 배추 들깨가루","등뼈와 우거지를 넣어 끓인 해장국","pork"],
+["순대국","🥣",0,6,1,566293,2,0,0,"순대 돼지고기 부추 대파","순대와 머리고기를 넣은 진한 국밥","pork"],
+["돼지국밥","🥣",0,6,1,566293,2,0,0,"돼지고기 밥 부추 대파","뽀얀 돼지 육수에 밥을 말아 먹는 국밥","pork"],
+["설렁탕","🥣",0,7,1,4752661,2,0,0,"소고기 소면 대파","소뼈를 오래 고아 낸 뽀얀 국물","beef wheat"],
+["갈비탕","🍖",0,6,1,2098453,2,0,0,"소고기 무 당면 대파","소갈비를 푹 끓인 맑은 탕","beef"],
+["육개장","🌶️",0,6,5,50325,2,60,2,"소고기 대파 숙주 버섯 달걀","소고기와 대파를 듬뿍 넣은 얼큰한 국","beef"],
+["삼계탕","🐔",0,6,5,2098449,1,70,2,"닭고기 쌀 대파","영계에 찹쌀을 채워 고아 낸 보양식","chick"],
+["닭한마리","🐔",0,4,1,10518801,1,0,0,"닭고기 감자 떡 칼국수면 부추","맑은 닭 육수에 끓여 칼국수까지 먹는 전골","chick wheat"],
+["콩나물국밥","🥣",0,3,5,536837,2,20,1,"콩나물 밥 달걀 대파 김","콩나물국에 밥과 날달걀을 넣은 해장 국밥",""],
+["굴국밥","🦪",0,6,1,33587493,1,0,0,"굴 무 부추 밥","제철 굴을 넣어 시원하게 끓인 국밥","sea"],
+["해물탕","🦀",0,12,1,8683681,1,0,0,"꽃게 새우 조개 오징어 무 미나리","꽃게·새우·조개를 넣은 얼큰한 탕","sea"],
+["알탕","🥘",0,6,1,32933,1,0,0,"생선 무 미나리 콩나물","명란과 곤이를 넣은 칼칼한 탕","sea"],
+["곱창전골","🥘",0,12,1,8683665,1,0,0,"곱창 당면 양배추 깻잎 버섯","곱창과 채소를 얼큰하게 끓인 전골","beef"],
+["김치찜","🥘",0,6,5,2098324,1,50,2,"김치 돼지고기 양파 대파","묵은지와 돼지고기를 통째로 쪄 낸 요리","pork"],
+["비빔밥","🍚",0,6,5,590148,2,20,1,"밥 달걀 시금치 콩나물 당근 애호박 고추장","나물과 고추장을 슥슥 비벼 먹는 한 그릇",""],
+["돌솥비빔밥","🍚",0,6,1,558148,1,0,0,"밥 달걀 콩나물 시금치 당근 고추장","뜨거운 돌솥에 누룽지까지 즐기는 비빔밥",""],
+["김치볶음밥","🍳",0,14,5,528516,3,15,1,"김치 밥 달걀 햄 대파","김치와 햄을 볶아 달걀프라이를 올린 볶음밥","pork"],
+["제육볶음","🥩",0,6,7,10618004,3,25,1,"돼지고기 양파 대파 양배추 고추장","고추장 양념에 볶은 돼지고기, 덮밥으로도","pork"],
+["불고기","🥩",0,6,5,6422804,2,30,1,"소고기 양파 당근 대파 버섯","간장 양념에 재운 달큰한 소고기","beef"],
+["오징어볶음","🦑",0,6,5,1188,2,20,2,"오징어 양파 양배추 당근 대파 고추장","오징어와 채소를 매콤하게 볶은 밥도둑","sea"],
+["오삼불고기","🥘",0,6,5,8389812,1,25,2,"오징어 삼겹살 양배추 양파 대파 고추장","오징어와 삼겹살을 함께 볶은 매콤한 요리","pork sea"],
+["낙지볶음","🐙",0,6,3,8388772,1,0,0,"낙지 양파 양배추 대파 고추장","맵게 볶은 낙지를 밥에 비벼 먹는 요리","sea"],
+["주꾸미볶음","🐙",0,14,3,8650916,1,0,0,"주꾸미 양파 양배추 대파 고추장","불맛 나게 볶은 매콤한 주꾸미","sea"],
+["낙곱새","🥘",0,6,1,8388788,1,0,0,"낙지 곱창 새우 양배추 대파","낙지·곱창·새우를 함께 끓인 매콤한 전골","beef sea"],
+["스팸마요덮밥","🍚",0,14,4,528404,1,10,1,"밥 스팸 달걀 김 양파","구운 햄과 스크램블을 올린 간단 덮밥","pork"],
+["간장계란밥","🍚",0,11,4,4722948,2,5,1,"밥 달걀 김","달걀프라이에 간장·참기름을 비빈 밥",""],
+["주먹밥","🍙",0,11,12,4853764,2,10,1,"밥 김 참치캔","밥에 김가루와 참치를 버무려 뭉친 한입 밥","sea"],
+["삼각김밥","🍙",0,11,8,528388,1,0,0,"밥 김","편의점에서 바로 집어 드는 한 끼",""],
+["편의점 도시락","🍱",0,14,8,528388,1,0,0,"밥","반찬까지 갖춘 편의점 도시락 하나",""],
+["쌈밥","🥬",0,6,1,2098516,1,0,0,"상추 깻잎 돼지고기 된장 밥","쌈채소에 고기와 쌈장을 싸 먹는 밥상","pork"],
+["백반","🍚",0,2,1,525573,2,0,0,"밥","국과 반찬 여러 가지가 나오는 집밥 같은 정식",""],
+["생선구이","🐟",0,6,5,6291748,2,20,1,"고등어 밥","노릇하게 구운 고등어에 흰쌀밥","sea"],
+["고등어조림","🐟",0,4,5,164,1,30,2,"고등어 무 양파 대파","무를 깔고 칼칼하게 졸인 고등어","sea"],
+["두부조림","🥢",0,4,4,69892,1,20,1,"두부 양파 대파","간장 양념에 졸인 두부, 밥 한 공기 뚝딱",""],
+["계란말이","🥚",0,7,4,4329732,2,10,1,"달걀 대파 당근","도톰하게 말아 낸 달걀 반찬",""],
+["계란찜","🥚",0,7,4,4198660,2,10,1,"달걀 대파","폭신하게 부풀린 뚝배기 달걀찜",""],
+["소시지야채볶음","🌭",0,14,4,4591636,2,15,1,"소시지 양파 파프리카 당근","케첩 소스에 볶은 소시지와 채소","pork"],
+["두부김치","🥢",0,12,5,8650896,1,15,1,"두부 김치 돼지고기","볶은 김치와 돼지고기에 따끈한 두부","pork"],
+["잡채","🍝",0,6,5,2097490,1,40,2,"당면 시금치 당근 양파 버섯 돼지고기","당면과 채소를 간장에 볶은 잔치 요리","pork"],
+["떡갈비","🥩",0,6,5,4325396,1,30,2,"다진고기 양파 대파","다진 고기를 반죽해 구운 달큰한 고기","pork beef"],
+["소고기야채죽","🥣",0,3,7,4204800,2,30,1,"쌀 소고기 당근 애호박","속이 편한 소고기 채소죽","beef"],
+["단호박죽","🎃",0,1,5,4196608,1,30,1,"단호박 쌀","달콤하고 부드러운 단호박죽",""],
+["누룽지","🥣",0,9,4,6401,1,10,1,"누룽지","끓는 물에 불려 구수하게 먹는 누룽지탕",""],
+["군고구마","🍠",0,9,12,71680,1,25,1,"고구마 우유","구운 고구마에 우유 한 잔","dairy"],
+["삼겹살","🥓",0,12,5,11797520,3,20,1,"삼겹살 상추 깻잎 김치","불판에 구워 쌈 싸 먹는 국민 메뉴","pork"],
+["돼지갈비","🍖",0,4,1,10486804,2,0,0,"돼지고기 양파","양념 돼지갈비를 숯불에 구운 외식 메뉴","pork"],
+["보쌈","🥬",0,12,7,10749200,2,60,2,"돼지고기 배추 무","삶은 돼지고기를 김치·쌈과 곁들이는 요리","pork"],
+["족발","🍖",0,12,3,10748944,3,0,0,"돼지고기 상추","간장에 푹 삶아 낸 쫀득한 족발","pork"],
+["닭갈비","🍗",0,4,5,9438352,2,30,2,"닭고기 양배추 고구마 떡 고추장","철판에 양배추와 함께 볶는 매콤한 닭갈비","chick"],
+["찜닭","🍗",0,4,3,10486804,2,0,0,"닭고기 당면 감자 당근 양파","간장 양념에 당면을 넣어 졸인 닭찜","chick"],
+["닭볶음탕","🍗",0,4,5,10486932,2,40,2,"닭고기 감자 당근 양파 대파","닭과 감자를 매콤하게 졸인 국물 요리","chick"],
+["닭강정","🍗",0,10,3,4456464,1,0,0,"닭고기 밀가루","달콤한 양념을 입힌 한입 닭튀김","chick wheat"],
+["닭발","🔥",0,8,3,8650896,1,0,0,"닭고기","불맛 나는 매운 양념에 볶은 닭발","chick"],
+["곱창구이","🔥",0,12,1,8651792,1,0,0,"곱창 양파 부추","고소하게 구운 곱창, 마무리는 볶음밥","beef"],
+["육회","🥩",0,12,1,26476560,1,0,0,"소고기 달걀","양념한 생소고기에 노른자를 올린 요리","beef"],
+["회","🐟",0,12,3,28573984,2,0,0,"생선 상추","광어·우럭 같은 생선회 한 접시","sea"],
+["물회","🐟",0,6,1,16777888,1,0,0,"생선 오이 소면 고추장","살얼음 육수에 회와 채소를 말아 먹는 여름 별미","sea wheat"],
+["회덮밥","🐟",0,6,1,16843364,1,0,0,"생선 밥 상추 오이 고추장","회와 채소를 초고추장에 비벼 먹는 덮밥","sea"],
+["장어구이","🐟",0,4,1,2098208,1,0,0,"생선 깻잎","숯불에 구워 기운 나는 장어","sea"],
+["과메기","🐟",0,12,3,42205216,1,0,0,"생선 김 미역","겨울 바닷바람에 말린 꽁치를 김·미역에 싸 먹는 별미","sea"],
+["아귀찜","🌶️",0,4,3,8388768,1,0,0,"생선 콩나물 미나리","콩나물을 듬뿍 넣어 매콤하게 찐 아귀","sea"],
+["골뱅이무침","🐚",0,8,1,8650914,1,0,0,"골뱅이 소면 오이 양파 대파 고추장","골뱅이를 새콤매콤하게 무쳐 소면과 먹는 안주","sea wheat"],
+["해물파전","🥞",0,12,5,10764320,2,25,2,"부침가루 대파 오징어 새우 달걀","비 오는 날 생각나는 바삭한 파전","sea wheat"],
+["김치전","🥞",0,14,4,807040,2,15,1,"김치 부침가루 양파","김치를 송송 썰어 바삭하게 부친 전","wheat"],
+["감자전","🥔",0,14,4,4210944,1,25,1,"감자 양파","감자를 갈아 쫀득하게 부친 전",""],
+["부추전","🥞",0,14,4,282688,1,15,1,"부추 부침가루 양파","부추를 듬뿍 넣어 얇게 부친 전","wheat"],
+["칼국수","🍜",0,6,5,49443,2,25,1,"칼국수면 조개 애호박 감자 대파","바지락 육수에 칼국수를 끓인 한 그릇","sea wheat"],
+["수제비","🥣",0,6,5,49409,1,30,2,"밀가루 감자 애호박 대파","반죽을 뜯어 넣어 끓인 쫄깃한 수제비","wheat"],
+["잔치국수","🍜",0,6,5,6435,2,15,1,"소면 멸치 애호박 달걀 김","멸치 육수에 소면을 말아 낸 국수","sea wheat"],
+["비빔국수","🍜",0,2,5,4738,2,15,1,"소면 오이 김치 달걀 고추장","새콤달콤 매콤하게 비빈 소면","wheat"],
+["콩국수","🍜",0,2,5,770,1,20,1,"소면 오이","진한 콩물에 말아 먹는 여름 국수","wheat"],
+["물냉면","🍜",0,6,7,770,2,10,1,"냉면 오이 달걀 소고기","살얼음 육수에 말아 낸 시원한 냉면","beef wheat"],
+["비빔냉면","🍜",0,6,7,642,2,10,1,"냉면 오이 달걀 고추장","매콤한 양념장에 비빈 쫄깃한 냉면","wheat"],
+["막국수","🍜",0,2,1,66306,1,0,0,"메밀면 오이 김","메밀면을 시원한 국물이나 양념에 비빈 국수","wheat"],
+["김밥","🍙",4,3,13,4853764,3,30,2,"밥 김 달걀 햄 당근 시금치","단무지·햄·달걀을 말아 낸 분식 대표","pork"],
+["참치김밥","🍙",4,3,9,659492,1,0,0,"밥 김 참치캔 깻잎","참치마요와 깻잎을 넣어 고소한 김밥","sea"],
+["떡볶이","🌶️",4,10,7,1577088,3,20,1,"떡볶이떡 어묵 양배추 대파 고추장","매콤달콤한 국물 떡볶이","sea"],
+["로제떡볶이","🍝",4,10,7,1048704,2,20,1,"떡볶이떡 어묵 우유 치즈 고추장","우유와 치즈로 부드럽게 만든 떡볶이","sea dairy"],
+["라볶이","🍜",4,10,7,4226,2,15,1,"라면 떡볶이떡 어묵 양배추 대파 고추장","떡볶이에 라면 사리를 넣은 분식","sea wheat"],
+["라면","🍜",4,10,12,536707,3,5,1,"라면 달걀 대파","달걀과 파를 넣고 끓인 꼬들꼬들한 라면","wheat"],
+["짜장라면","🍝",4,10,12,4722690,2,5,1,"라면 달걀","짜장 분말에 비벼 먹는 인스턴트 면","wheat"],
+["쫄면","🍜",4,10,3,642,1,0,0,"쫄면 양배추 오이 달걀 고추장","쫄깃한 면을 새콤매콤하게 비빈 분식","wheat"],
+["순대","🌭",4,10,3,267264,1,0,0,"순대","찹쌀순대에 간·허파를 곁들인 분식","pork"],
+["순대볶음","🌶️",4,12,1,8650880,1,0,0,"순대 양배추 깻잎 고추장","순대와 채소를 매콤하게 볶은 안주","pork"],
+["모둠튀김","🍤",4,10,3,1056,1,0,0,"밀가루 새우 고구마 오징어","오징어·새우·고구마를 튀긴 분식집 튀김","sea wheat"],
+["어묵탕","🍢",4,12,13,299297,2,20,1,"어묵 무 대파","꼬치 어묵을 무 국물에 끓인 따끈한 탕","sea"],
+["만두","🥟",4,10,15,4722688,2,10,1,"만두","노릇하게 구운 군만두나 김 오르는 찐만두","wheat"],
+["핫도그","🌭",4,11,9,4198408,1,0,0,"소시지 밀가루","바삭한 튀김옷의 막대 핫도그","pork wheat"],
+["토스트","🥪",4,3,5,4853768,3,10,1,"식빵 달걀 양배추 햄 치즈","달걀과 양배추를 부쳐 넣은 길거리 토스트","pork wheat dairy"],
+["짜장면","🍝",1,14,3,4719618,3,0,0,"중화면 춘장 돼지고기 양파","춘장 소스에 비벼 먹는 중국집 대표 면","pork wheat"],
+["짬뽕","🍜",1,14,3,57507,3,0,0,"중화면 오징어 새우 양파 양배추","얼큰한 해물 국물의 중국집 면","sea wheat"],
+["짜장밥","🍛",1,6,7,4195332,1,20,1,"춘장 돼지고기 양파 감자 밥","짜장 소스를 밥에 넉넉히 부은 한 그릇","pork"],
+["탕수육","🍖",1,14,3,14942224,3,0,0,"돼지고기 밀가루 양파 당근","바삭한 튀김에 새콤달콤 소스","pork wheat"],
+["계란볶음밥","🍳",1,7,4,4722948,2,10,1,"밥 달걀 대파","파기름에 달걀을 볶아 낸 고슬고슬한 볶음밥",""],
+["새우볶음밥","🍤",1,6,7,4194596,1,15,1,"밥 새우 달걀 당근 양파 대파","새우와 달걀을 넣은 고슬고슬한 볶음밥","sea"],
+["마파두부","🌶️",1,6,5,524420,1,20,1,"두부 다진고기 대파","얼얼하게 매운 두부를 밥에 얹어 먹는 요리","pork beef"],
+["깐풍기","🍗",1,12,3,8650896,1,0,0,"닭고기 밀가루 고추 대파","바삭한 닭튀김을 매콤달콤하게 볶은 요리","chick wheat"],
+["꿔바로우","🍖",1,12,1,9699344,1,0,0,"돼지고기 당근","찹쌀 튀김옷이 쫀득한 중국식 탕수육","pork"],
+["마라탕","🌶️",1,14,3,557185,3,0,0,"소고기 숙주 배추 버섯 당면 두부","좋아하는 재료를 골라 담는 얼얼한 국물","beef"],
+["마라샹궈","🌶️",1,12,3,9699456,2,0,0,"소고기 새우 숙주 버섯 감자","여러 재료를 마라 소스에 볶은 요리","beef sea"],
+["양꼬치","🍢",1,12,1,9699344,2,0,0,"양고기","양념 가루를 찍어 먹는 숯불 양꼬치",""],
+["훠궈","🍲",1,4,1,9470097,1,0,0,"소고기 양고기 배추 버섯 두부 당면","맵고 맑은 육수에 데쳐 먹는 중국식 샤브샤브","beef"],
+["딤섬","🥟",1,6,1,1048832,1,0,0,"만두 새우","한입 크기 만두와 찐 요리 모둠","sea wheat"],
+["초밥","🍣",2,6,3,19922980,3,0,0,"생선 연어 새우 밥","신선한 생선을 올린 초밥 한 판","sea"],
+["돈가스","🍖",2,6,3,4850708,3,0,0,"돼지고기 밀가루 양배추 밥","바삭하게 튀긴 돈가스와 양배추 샐러드","pork wheat"],
+["우동","🍜",2,14,13,561411,2,10,1,"우동면 어묵 대파 달걀","가쓰오 국물에 굵은 면을 만 우동","sea wheat"],
+["볶음우동","🍜",2,14,5,4114,1,15,1,"우동면 돼지고기 양배추 양파","고기와 채소를 넣고 짭조름하게 볶은 우동","pork wheat"],
+["냉모밀","🍜",2,2,1,770,1,0,0,"메밀면 무 김 대파","차가운 장국에 찍어 먹는 메밀국수","wheat"],
+["라멘","🍜",2,6,1,558099,2,0,0,"중화면 돼지고기 달걀 대파","진한 돼지뼈 육수의 일본식 라멘","pork wheat"],
+["카레라이스","🍛",2,6,5,6423572,2,30,1,"카레가루 감자 당근 양파 돼지고기 밥","감자·당근을 넣은 카레를 밥에 부어 먹는 한 그릇","pork"],
+["규동","🍚",2,6,5,528660,1,20,1,"소고기 양파 밥 달걀","달짝지근한 간장 소고기를 올린 덮밥","beef"],
+["가츠동","🍚",2,6,1,525332,1,0,0,"돼지고기 밀가루 달걀 양파 밥","돈가스를 달걀로 덮어 밥에 올린 덮밥","pork wheat"],
+["연어덮밥","🍣",2,6,1,18350372,1,0,0,"연어 밥 양파","생연어를 넉넉히 올린 덮밥","sea"],
+["참치마요덮밥","🍚",2,6,5,4853796,2,10,1,"밥 참치캔 달걀 김 양파","참치와 마요네즈, 김을 얹은 간단 덮밥","sea"],
+["텐동","🍤",2,6,1,1060,1,0,0,"새우 밀가루 단호박 가지 밥","튀김을 밥 위에 올려 소스를 뿌린 덮밥","sea wheat"],
+["유부초밥","🍣",2,3,12,4329732,2,20,1,"밥 유부","새콤달콤한 유부에 밥을 채운 도시락 단골",""],
+["샤브샤브","🥘",2,6,1,3244369,2,0,0,"소고기 배추 버섯 숙주 칼국수면","얇은 고기와 채소를 데쳐 먹는 전골","beef wheat"],
+["오코노미야키","🥞",2,12,1,9699360,1,0,0,"양배추 밀가루 오징어 새우 달걀","양배추를 듬뿍 넣어 철판에 구운 일본식 부침","sea wheat"],
+["토마토파스타","🍝",3,6,7,5242898,2,20,1,"파스타면 토마토 양파 다진고기","토마토소스에 다진 고기를 넣은 파스타","pork beef wheat"],
+["크림파스타","🍝",3,6,7,5242898,2,20,1,"파스타면 생크림 베이컨 양파 버섯","베이컨과 버섯을 넣은 꾸덕한 크림 파스타","pork wheat dairy"],
+["알리오올리오","🍝",3,14,4,528642,2,15,1,"파스타면 고추","마늘과 올리브유로 볶은 간단한 파스타","wheat"],
+["오므라이스","🍳",3,6,5,5242884,2,25,2,"밥 달걀 양파 당근 햄","볶음밥을 달걀로 감싸 케첩을 뿌린 요리","pork"],
+["함박스테이크","🍖",3,6,5,4325396,1,30,2,"다진고기 양파 달걀 밥","소스를 끼얹은 도톰한 함박스테이크","pork beef"],
+["스테이크","🥩",3,4,5,1049616,1,20,2,"소고기 버터","겉은 바삭하고 속은 촉촉하게 구운 소고기","beef dairy"],
+["리조또","🍚",3,6,5,1048580,1,25,2,"밥 생크림 버섯 양파 치즈","버섯과 크림으로 끓인 이탈리아식 밥 요리","dairy"],
+["감바스","🦐",3,12,5,1310760,1,15,1,"새우 빵 고추","마늘 기름에 새우를 끓여 빵을 찍어 먹는 요리","sea wheat"],
+["닭가슴살샐러드","🥗",3,7,15,71760,2,10,1,"양상추 토마토 오이 닭고기","닭가슴살을 올린 가벼운 샐러드","chick"],
+["포케","🥗",3,6,3,16844900,1,0,0,"연어 밥 양상추 오이 옥수수","연어와 채소를 밥에 올린 하와이식 샐러드볼","sea"],
+["샌드위치","🥪",3,3,13,661512,2,10,1,"식빵 햄 치즈 양상추 토마토 달걀","햄·치즈·채소를 넣은 샌드위치","pork wheat dairy"],
+["프렌치토스트","🍞",3,1,4,4198408,1,10,1,"식빵 달걀 우유 버터","달걀물에 적셔 버터에 구운 토스트","wheat dairy"],
+["팬케이크","🥞",3,1,4,4194312,1,20,1,"밀가루 달걀 우유 버터","폭신하게 구워 시럽을 뿌린 팬케이크","wheat dairy"],
+["크림수프","🥣",3,1,4,4196617,1,15,1,"우유 양파 버터 빵","부드러운 크림 수프에 빵을 곁들인 아침","wheat dairy"],
+["베이글","🥯",3,1,9,6152,1,0,0,"빵 치즈","크림치즈를 바른 쫄깃한 베이글","wheat dairy"],
+["요거트볼","🥣",3,1,12,71680,1,5,1,"요거트 시리얼","요거트에 시리얼과 과일을 올린 한 그릇","dairy"],
+["오트밀","🥣",3,1,4,71680,1,5,1,"오트밀 우유","우유에 불린 오트밀 한 그릇","dairy"],
+["시리얼","🥣",3,1,12,4200448,1,2,1,"시리얼 우유","우유만 부으면 되는 가장 빠른 아침","dairy"],
+["타코","🌮",3,6,1,1048592,1,0,0,"또띠아 소고기 양상추 토마토 치즈","또띠아에 고기와 채소를 싸 먹는 멕시코 요리","beef wheat dairy"],
+["퀘사디아","🌮",3,10,4,266256,1,15,1,"또띠아 치즈 닭고기 양파","또띠아에 치즈와 닭고기를 넣어 구운 한 끼","chick wheat dairy"],
+["치킨","🍗",6,12,2,14942224,3,0,0,"닭고기 밀가루","바삭한 프라이드냐 양념이냐, 국민 야식","chick wheat"],
+["피자","🍕",6,14,2,14680088,3,0,0,"밀가루 치즈 햄 토마토","여럿이 나눠 먹기 좋은 배달 피자","pork wheat dairy"],
+["햄버거","🍔",6,14,11,528408,3,0,0,"소고기 빵 양상추 토마토 치즈","두툼한 패티를 끼운 햄버거와 감자튀김","beef wheat dairy"],
+["쌀국수","🍜",5,6,3,532755,3,0,0,"쌀국수면 소고기 숙주 양파","소고기 육수에 쌀국수를 만 베트남 국수","beef"],
+["팟타이","🍜",5,6,1,1048610,1,0,0,"쌀국수면 새우 숙주 달걀 부추","새우와 숙주를 넣고 달짝지근하게 볶은 쌀국수","sea"],
+["분짜","🥗",5,2,1,530,1,0,0,"쌀국수면 돼지고기 상추","숯불 돼지고기와 쌀국수를 소스에 찍어 먹는 요리","pork"],
+["반미","🥖",5,3,1,4120,1,0,0,"빵 돼지고기 당근 오이","바게트에 고기와 절인 채소를 넣은 베트남 샌드위치","pork wheat"],
+["나시고렝","🍛",5,6,1,132,1,0,0,"밥 새우 달걀 양파","달걀프라이를 올린 인도네시아식 볶음밥","sea"],
+["인도커리","🍛",5,6,1,1049628,1,0,0,"닭고기 생크림 토마토 빵","진한 커리에 난을 찍어 먹는 인도 요리","chick wheat dairy"],
+["똠얌꿍","🍲",5,4,1,161,1,0,0,"새우 버섯 토마토","새콤하고 매콤한 태국식 새우 수프","sea"],
+["월남쌈","🥬",5,6,4,6359104,1,20,1,"라이스페이퍼 파프리카 오이 깻잎 새우","채소와 새우를 라이스페이퍼에 싸 먹는 쌈","sea"]
+].map((r, i) => ({ i, n: r[0], e: r[1], c: r[2], m: r[3], w: r[4], t: r[5], p: r[6], tm: r[7], lv: r[8], g: r[9].split(" "), d: r[10], f: r[11] ? r[11].split(" ") : [] }));
+const BYNAME = new Map(M.map(x => [x.n, x]));
+
+/* ════════════════════════════════════════════════════════════
+   고르기 — 조건 거르기, 무게를 둔 난수, 월드컵·여럿이·냉장고·일주일
+   ════════════════════════════════════════════════════════════ */
+const TI = Object.fromEntries(TAGS.map((t, i) => [t, i]));
+const hasT = (m, t) => (m.t >> TI[t] & 1) === 1;
+const hasW = (m, w) => (m.w >> w & 1) === 1;
+const hasM = (m, k) => (m.m >> k & 1) === 1;
+const WANT = ['국물', '면', '밥', '빵', '고기', '해산물', '채소', '매콤', '담백', '든든', '가볍'];
+const SIT = [['빨리', '빨리 먹는'], ['해장', '해장'], ['비', '비 오는 날'], ['추위', '추운 날'], ['시원', '더운 날'], ['다이어트', '다이어트'],
+  ['도시락', '도시락'], ['안주', '술안주'], ['아이', '아이와']];
+const SIT_WHY = { 빨리: '빨리 먹을 수 있어요', 해장: '속 풀기 좋은 메뉴예요', 비: '비 오는 날 잘 어울려요', 추위: '추운 날 몸이 녹아요', 시원: '더운 날 시원하게 먹어요',
+  다이어트: '부담이 적은 편이에요', 도시락: '싸 가기 좋아요', 안주: '한잔 곁들이기 좋아요', 아이: '맵지 않아 아이와 먹기 좋아요' };
+const EX = [['매콤', '매운 것'], ['pork', '돼지고기'], ['beef', '소고기'], ['chick', '닭고기'], ['sea', '해산물'], ['날것', '날것(회·육회)'], ['wheat', '밀가루'], ['dairy', '유제품']];
+const WHO_WHY = { 혼밥: '혼자 먹기 편해요', 데이트: '둘이 먹기 좋아요', 가족: '가족과 함께 먹기 좋아요', 회식: '여럿이 나눠 먹기 좋아요' };
+const PROT = ['pork', 'beef', 'chick', 'sea'];
+const BASIC = ['밥', '쌀', '고추장', '된장'];
+const LV = ['', '쉬움', '보통', '조금 손이 감'];
+const DAYN = ['월', '화', '수', '목', '금', '토', '일'];
+
+const hourMeal = h => h >= 5 && h < 10 ? 0 : h < 15 ? 1 : h < 21 ? 2 : 3;
+const S = { mode: 'pick', meal: hourMeal(new Date().getHours()), way: -1, who: '', want: [], sit: [], cat: [], ex: [], recent: 3,
+  cupn: 8, wdays: 5, wmeal: 2, wout: 1 };
+let HIST = [];          /* 먹은 기록 [{n, d:'YYYY-MM-DD'}] 새것이 앞 */
+let FR = new Set();     /* 냉장고 재료 */
+let FRB = true;         /* 밥·고추장·된장 있다고 보기 */
+let SHOWN = [];         /* 이번에 보여 준 메뉴(연달아 안 나오게) */
+
+/* ── 난수 — 시험에서 같은 결과가 나오게 씨앗을 줄 수 있다 ── */
+let rnd = Math.random;
+function setSeed(n) {
+  let a = n >>> 0;
+  rnd = () => { a = a + 0x6D2B79F5 >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function daysAgo(s) {
+  const p = s.split('-').map(Number), t = new Date(), a = new Date(p[0], p[1] - 1, p[2]);
+  return Math.round((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - a) / 864e5);
+}
+const recentSet = () => new Set(S.recent > 0 ? HIST.filter(h => daysAgo(h.d) < S.recent).map(h => h.n) : []);
+const season = () => { const mo = new Date().getMonth() + 1; return mo >= 11 || mo <= 2 ? 'w' : mo >= 6 && mo <= 8 ? 's' : ''; };
+
+/* 빼기 — 주재료에서 붙인 표시(f)와 매콤·날것 특징 */
+const exHit = (m, ex) => ex.some(k => k === '매콤' || k === '날것' ? hasT(m, k) : m.f.includes(k));
+/* 조건에 맞는 메뉴. o.meal·o.way 를 따로 줄 수 있다(일주일), o.noRecent 면 기록을 안 본다 */
+function filterMenus(o) {
+  o = o || {};
+  const meal = o.meal != null ? o.meal : S.meal, way = o.way != null ? o.way : S.way;
+  const rec = o.noRecent ? new Set() : recentSet();
+  return M.filter(m => (meal < 0 || hasM(m, meal)) &&
+    (way < 0 || hasW(m, way)) &&
+    (o.loose || !S.want.length || S.want.some(t => hasT(m, t))) &&
+    (o.loose || S.sit.every(t => hasT(m, t))) &&
+    (!S.cat.length || S.cat.includes(m.c)) &&
+    !exHit(m, S.ex) && !rec.has(m.n));
+}
+function weight(m) {
+  let w = [0, 1, 2, 3.4][m.p];
+  const se = season();
+  if (se === 'w') { if (hasT(m, '겨울') || hasT(m, '추위')) w *= 1.6; if (hasT(m, '시원')) w *= 0.45; }
+  if (se === 's') { if (hasT(m, '시원')) w *= 1.9; if (hasT(m, '추위') || hasT(m, '겨울')) w *= 0.55; }
+  if (S.who && hasT(m, S.who)) w *= 1.8;
+  const k = S.want.filter(t => hasT(m, t)).length;
+  if (k > 1) w *= 1 + 0.3 * (k - 1);
+  const si = SHOWN.indexOf(m.n);
+  if (si >= 0) w *= 0.06 + si * 0.08;   /* 방금 것일수록 더 덜 나온다 */
+  return w;
+}
+/* 무게를 둔 뽑기 — 겹치지 않게 k개 */
+function wpick(list, k, wf) {
+  wf = wf || weight;
+  const pool = list.map(m => ({ m, w: Math.max(wf(m), 1e-6) })), out = [];
+  while (out.length < k && pool.length) {
+    let sum = 0; for (const x of pool) sum += x.w;
+    let r = rnd() * sum, i = 0;
+    for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+    out.push(pool[i].m); pool.splice(i, 1);
+  }
+  return out;
+}
+function noteShown(m) { SHOWN = [m.n].concat(SHOWN.filter(n => n !== m.n)).slice(0, 8); }
+
+/* 고른 까닭 — 실제로 맞은 조건만 적는다 */
+function whyOf(m, from) {
+  const out = [];
+  if (from && from.fr) {
+    out.push('있는 재료: ' + from.have.join(', '));
+    out.push(from.miss.length ? '더 있으면 되는 것: ' + from.miss.join(', ') : '고른 재료로 바로 만들 수 있어요');
+  }
+  const mealOk = hasM(m, S.meal);
+  if (!from || from.cond) {
+    if (mealOk) out.push(ro(MEALN[S.meal]) + ' 먹기 좋은 메뉴예요');
+    const wt = S.want.filter(t => hasT(m, t));
+    if (wt.length) out.push('땡기는 것: ' + wt.join(', '));
+    for (const t of S.sit) if (hasT(m, t)) out.push(SIT_WHY[t]);
+    if (S.who && hasT(m, S.who)) out.push(WHO_WHY[S.who]);
+    if (S.ex.length) out.push('주재료에 ' + S.ex.map(k => EX.find(e => e[0] === k)[1].replace(/\(.*\)/, '')).join('·') + ' 없음');
+  }
+  const se = season();
+  if (se === 'w' && (hasT(m, '겨울') || hasT(m, '추위')) && !S.sit.includes('추위')) out.push('찬 바람 부는 계절에 더 생각나요');
+  if (se === 's' && hasT(m, '시원') && !S.sit.includes('시원')) out.push('더운 계절에 시원하게 먹어요');
+  if (!out.length && m.p === 3) out.push('많이들 먹는 인기 메뉴예요');
+  return out;
+}
+/* 「점심으로」 — 받침이 있으면 「으로」, ㄹ 받침·받침 없으면 「로」 */
+function ro(s) {
+  const c = s.charCodeAt(s.length - 1) - 0xAC00;
+  if (c < 0 || c > 11171) return s + '로';
+  const j = c % 28;
+  return s + (j === 0 || j === 8 ? '로' : '으로');
+}
+function eunNeun(s) { const c = s.charCodeAt(s.length - 1) - 0xAC00; return s + (c >= 0 && c <= 11171 && c % 28 ? '은' : '는'); }
+
+/* ── 월드컵 ── */
+const CUP = { on: false, pool: [], used: new Set(), cur: [], next: [], i: 0, size: 0 };
+function cupStart(n) {
+  const pool = filterMenus();
+  let size = n;
+  while (size > pool.length && size > 4) size /= 2;
+  if (pool.length < 4) return 0;
+  const pick = wpick(pool, size);
+  CUP.on = true; CUP.pool = pool; CUP.used = new Set(pick.map(m => m.n)); CUP.cur = pick; CUP.next = []; CUP.i = 0; CUP.size = size;
+  return size;
+}
+function cupChoose(k) {
+  const a = CUP.cur[CUP.i * 2 + k];
+  CUP.next.push(a); CUP.i++;
+  if (CUP.i * 2 >= CUP.cur.length) {
+    if (CUP.next.length === 1) { CUP.on = false; return a; }
+    CUP.cur = CUP.next; CUP.next = []; CUP.i = 0;
+  }
+  return null;
+}
+/* 둘 다 별로 — 아직 안 나온 메뉴 둘로 바꾼다. 남은 게 없으면 false */
+function cupReplace() {
+  const rest = CUP.pool.filter(m => !CUP.used.has(m.n));
+  if (rest.length < 2) return false;
+  const two = wpick(rest, 2);
+  two.forEach(m => CUP.used.add(m.n));
+  CUP.cur[CUP.i * 2] = two[0]; CUP.cur[CUP.i * 2 + 1] = two[1];
+  return true;
+}
+const roundName = n => n === 2 ? '결승' : n === 4 ? '준결승' : n + '강';
+
+/* ── 여럿이 ── */
+const GRP = { list: [], x: new Set(), win: '' };
+function grpNew() { GRP.list = wpick(filterMenus(), 12); GRP.x = new Set(); GRP.win = ''; }
+function grpLeft() { return GRP.list.filter(m => !GRP.x.has(m.n)); }
+
+/* ── 냉장고 ── */
+function frHave(w) { return FR.has(w) || (FRB && BASIC.includes(w)); }
+function fridgeMatch() {
+  const res = [];
+  for (const m of M) {
+    if (!hasW(m, 2) || exHit(m, S.ex)) continue;
+    const have = m.g.filter(w => FR.has(w)), miss = m.g.filter(w => !frHave(w));
+    if (!have.length || miss.length > 2) continue;
+    res.push({ m, have, miss });
+  }
+  res.sort((a, b) => a.miss.length - b.miss.length || b.have.length - a.have.length || b.m.p - a.m.p || a.m.tm - b.m.tm);
+  return res;
+}
+
+/* ── 일주일 ── */
+const WK = { days: [], n: 5, meal: 2 };
+const protOf = m => m.f.filter(k => PROT.includes(k));
+const outDays = (n, k) => k === 0 ? [] : k === 1 ? [4] : [2, 4];
+function wkCand(out) {
+  return M.filter(m => hasM(m, WK.meal) && !exHit(m, S.ex) && (!S.cat.length || S.cat.includes(m.c)) &&
+    (out ? (hasW(m, 0) || hasW(m, 1)) : hasW(m, 2)));
+}
+/* i 번째 날 메뉴 — 앞뒤 날과 단백질이 겹치지 않고, 같은 종류 셋 연속·국물 이틀 연속을 피한다 */
+function wkPickDay(i) {
+  const d = WK.days[i], used = new Set(WK.days.filter((x, j) => j !== i && x.m).map(x => x.m.n));
+  const nb = [WK.days[i - 1], WK.days[i + 1]].filter(x => x && x.m).map(x => x.m);
+  const p2 = WK.days[i - 2] && WK.days[i - 2].m, p1 = WK.days[i - 1] && WK.days[i - 1].m;
+  const base = wkCand(d.out).filter(m => !used.has(m.n) && (!d.m || m.n !== d.m.n));
+  const strict = base.filter(m => {
+    const pr = protOf(m);
+    if (nb.some(x => protOf(x).some(k => pr.includes(k)))) return false;
+    if (p1 && p2 && p1.c === m.c && p2.c === m.c) return false;
+    if (nb.some(x => hasT(x, '국물')) && hasT(m, '국물')) return false;
+    return true;
+  });
+  const pick = wpick(strict.length ? strict : base, 1, m => [0, 1, 2, 3.4][m.p] * (season() === 'w' && hasT(m, '시원') ? 0.45 : 1));
+  if (pick.length) d.m = pick[0];
+}
+function wkGen(keep) {
+  const outs = outDays(WK.n, S.wout);
+  if (!keep || WK.days.length !== WK.n) WK.days = Array.from({ length: WK.n }, (_, i) => ({ m: null, lock: false, out: outs.includes(i) }));
+  else WK.days.forEach((d, i) => { if (!d.lock) d.m = null; d.out = d.lock ? d.out : outs.includes(i); });
+  for (let i = 0; i < WK.n; i++) if (!WK.days[i].m) wkPickDay(i);
+}
+function wkShop() {
+  const cnt = new Map();
+  for (const d of WK.days) if (d.m && !d.out) for (const w of d.m.g) { if (FRB && BASIC.includes(w)) continue; cnt.set(w, (cnt.get(w) || 0) + 1); }
+  const order = ING.flatMap(g => g[1]);
+  return [...cnt.entries()].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
+}
+
+/* ════════════════════════════════════════════════════════════
+   그림 — 메뉴 카드 1080×1350(세로 사진 비율) · 일주일 식단표 1080×가변
+   ════════════════════════════════════════════════════════════ */
+const EMOJI = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+const INK = '#7c2d12', SUB = '#9a3412', SOFT = '#c2410c';
+function fitFont(c, s, weight, max, min, w) {
+  let z = max;
+  for (; z > min; z -= 2) { c.font = weight + ' ' + z + 'px ' + FACES.sans; if (c.measureText(s).width <= w) break; }
+  c.font = weight + ' ' + z + 'px ' + FACES.sans;
+  return z;
+}
+/* 띄어쓰기에서 끊어 maxL 줄까지. 넘치면 끝에 … */
+function wrapText(c, s, maxW, maxL) {
+  const words = s.split(/\s+/).filter(Boolean), out = [];
+  let line = '';
+  for (const w of words) {
+    const t = line ? line + ' ' + w : w;
+    if (c.measureText(t).width <= maxW || !line) line = t; else { out.push(line); line = w; }
+  }
+  if (line) out.push(line);
+  if (out.length > maxL) { out.length = maxL; let l = out[maxL - 1]; while (l && c.measureText(l + '…').width > maxW) l = l.slice(0, -1); out[maxL - 1] = l + '…'; }
+  return out;
+}
+function bgFill(c, W, H) {
+  const g = c.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#fff7ed'); g.addColorStop(1, '#ffedd5');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.fillStyle = 'rgba(234,88,12,.07)';
+  for (let i = 0; i < 9; i++) { c.beginPath(); c.arc((i * 263) % W, (i * 397 + 120) % H, 30 + (i % 3) * 22, 0, 7); c.fill(); }
+}
+function pill(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function drawCard(cv, m) {
+  const W = 1080, H = 1350, c = cv.getContext('2d');
+  cv.width = W; cv.height = H;
+  bgFill(c, W, H);
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  const d = new Date();
+  c.fillStyle = SOFT; c.font = '800 46px ' + FACES.sans;
+  c.fillText((d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + MEALN[S.meal] + ' 메뉴는', W / 2, 170);
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(W / 2, 520, 250, 0, 7); c.fill();
+  c.strokeStyle = 'rgba(234,88,12,.25)'; c.lineWidth = 6; c.stroke();
+  c.font = '250px ' + EMOJI; c.textBaseline = 'middle'; c.fillText(m.e, W / 2, 535);
+  c.textBaseline = 'alphabetic';
+  c.fillStyle = INK; fitFont(c, m.n, '900', 128, 64, 940); c.fillText(m.n, W / 2, 935);
+  c.fillStyle = SUB; c.font = '600 42px ' + FACES.sans;
+  wrapText(c, m.d, 900, 2).forEach((l, i) => c.fillText(l, W / 2, 1015 + i * 58));
+  const tags = [CATN[m.c]].concat([0, 1, 2, 3].filter(w => hasW(m, w)).map(w => WAYN[w]));
+  if (hasW(m, 2)) tags.push(m.tm + '분');
+  c.font = '800 34px ' + FACES.sans;
+  const ws = tags.map(t => c.measureText(t).width + 48), tot = ws.reduce((a, b) => a + b, 0) + (ws.length - 1) * 14;
+  let x = (W - tot) / 2;
+  tags.forEach((t, i) => {
+    c.fillStyle = 'rgba(234,88,12,.12)'; pill(c, x, 1120, ws[i], 64, 32); c.fill();
+    c.fillStyle = SOFT; c.fillText(t, x + ws[i] / 2, 1164); x += ws[i] + 14;
+  });
+  c.fillStyle = 'rgba(124,45,18,.55)'; c.font = '700 30px ' + FACES.sans;
+  c.fillText('🎲 오늘 뭐 먹지 · 메뉴 추천기', W / 2, 1290);
+}
+function drawWeek(cv) {
+  const W = 1080, rows = WK.days.length, shop = wkShop(), c = cv.getContext('2d');
+  c.font = '700 32px ' + FACES.sans;
+  /* 장보기 줄 수를 먼저 재서 높이를 정한다 */
+  const chips = shop.map(([w, n]) => w + (n > 1 ? ' ×' + n : '')), lines = [[]];
+  let lw = 0;
+  for (const t of chips) { const w = c.measureText(t).width + 40; if (lw + w > W - 120 && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push(t); lw += w + 12; }
+  const H = 250 + rows * 128 + (chips.length ? 110 + lines.length * 66 : 0) + 90;
+  cv.width = W; cv.height = H;
+  bgFill(c, W, H);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.fillStyle = INK; c.font = '900 64px ' + FACES.sans;
+  c.fillText('📅 이번 주 ' + MEALN[WK.meal] + ' 식단', 60, 130);
+  c.fillStyle = SOFT; c.font = '700 32px ' + FACES.sans;
+  c.fillText(rows + '일 · 집밥 ' + WK.days.filter(d => !d.out).length + '일' + (WK.days.some(d => d.out) ? ' · 외식·배달 ' + WK.days.filter(d => d.out).length + '일' : ''), 60, 190);
+  WK.days.forEach((d, i) => {
+    const y = 230 + i * 128;
+    c.fillStyle = '#fff'; pill(c, 50, y, W - 100, 112, 26); c.fill();
+    c.fillStyle = i >= 5 ? '#dc2626' : SOFT; c.font = '900 40px ' + FACES.sans; c.textAlign = 'center';
+    c.fillText(DAYN[i], 112, y + 70);
+    if (!d.m) return;
+    c.font = '64px ' + EMOJI; c.textBaseline = 'middle'; c.fillText(d.m.e, 210, y + 58); c.textBaseline = 'alphabetic';
+    c.textAlign = 'left'; c.fillStyle = INK; fitFont(c, d.m.n, '900', 44, 28, 560); c.fillText(d.m.n, 270, y + 54);
+    c.fillStyle = SUB; c.font = '600 27px ' + FACES.sans;
+    c.fillText(d.out ? '외식·배달' : d.m.tm + '분 · ' + LV[d.m.lv] + ' · ' + d.m.g.slice(0, 4).join(', '), 270, y + 92);
+  });
+  let y = 230 + rows * 128 + 40;
+  if (chips.length) {
+    c.fillStyle = INK; c.font = '900 40px ' + FACES.sans; c.textAlign = 'left';
+    c.fillText('🛒 장보기 목록', 60, y + 40); y += 76;
+    c.font = '700 32px ' + FACES.sans;
+    for (const ln of lines) {
+      let x = 60;
+      for (const t of ln) {
+        const w = c.measureText(t).width + 40, have = FR.has(t.split(' ')[0]);
+        c.fillStyle = have ? 'rgba(124,45,18,.06)' : '#fff'; pill(c, x, y, w, 54, 27); c.fill();
+        c.fillStyle = have ? 'rgba(124,45,18,.4)' : INK; c.fillText(t, x + 20, y + 38);
+        if (have) { c.fillRect(x + 16, y + 27, w - 32, 3); }
+        x += w + 12;
+      }
+      y += 66;
+    }
+  }
+  c.fillStyle = 'rgba(124,45,18,.55)'; c.font = '700 28px ' + FACES.sans; c.textAlign = 'center';
+  c.fillText('🎲 오늘 뭐 먹지 · 메뉴 추천기', W / 2, H - 40);
+}
+async function saveCard(m) {
+  const cv = document.createElement('canvas'); drawCard(cv, m);
+  const b = await canvasBlob(cv);
+  download(b, '메뉴_' + safeName(m.n) + '.png');
+  DONE.show('「' + m.n + '」 메뉴 카드(1080×1350)를 저장했습니다.', ['휴대폰은 <b>사진</b> 앱이나 <b>내 파일 → 다운로드</b>에서 찾을 수 있어요.', '단톡방에 올리면 「오늘 이거 어때?」 하고 물어보기 좋아요.']);
+}
+async function saveWeek() {
+  const cv = document.createElement('canvas'); drawWeek(cv);
+  const b = await canvasBlob(cv);
+  download(b, '일주일_' + MEALN[WK.meal] + '_식단표.png');
+  DONE.show('일주일 ' + MEALN[WK.meal] + ' 식단표를 그림(PNG)으로 저장했습니다.', ['냉장고에 붙이거나 가족 단톡방에 올려 두세요.', '장보기 목록은 「글로 복사」로 메모 앱에 붙여 넣으면 하나씩 지우며 쓸 수 있어요.']);
+}
+
+/* ════════════════════════════════════════════════════════════
+   인앱 브라우저 (네이버·카카오톡 앱 안에서 열었을 때)
+
+   앱 안 화면은 OS 가 주는 WebView 인데 내려받기 기능이 없다. blob: 주소를 넘기면
+   아무 일도 일어나지 않고 끝난다(카카오 공식 안내: a[download] 는 안드로이드만,
+   iOS 는 data: 주소 방식). 서버가 없는 도구라 응답 헤더로 내려줄 수도 없다.
+     ① 저장은 blob: 대신 data: 주소로 시도한다
+     ② 시작하기 전에 창을 띄워 브라우저를 옮기게 한다 — 다 쓰고 나서 옮기면
+        내용을 다시 써야 한다(내용은 그 탭에만 보관)
+     ③ 아이폰은 사파리를 강제로 열 수 없어 주소 복사 + 메뉴 안내로 간다
+   ════════════════════════════════════════════════════════════ */
+const UA = navigator.userAgent || '';
+const IA = {
+  naver: /NAVER\(inapp/i.test(UA),
+  kakao: /KAKAOTALK/i.test(UA),
+  line: /\bLine\//i.test(UA),
+  ios: /iPhone|iPad|iPod/i.test(UA),
+  android: /Android/i.test(UA)
+};
+IA.on = IA.naver || IA.kakao || IA.line ||
+  /Instagram|FBAN|FBAV|FB_IAB|DaumApps|everytimeApp|band\/|KAKAOSTORY/i.test(UA) ||
+  (IA.android && /;\s*wv\)/i.test(UA));   /* 안드로이드 WebView 표시 */
+
+/* 다른 브라우저로 넘기기. 앱마다 길이 달라 순서대로 고른다 */
+function externalUrl() {
+  const url = location.href;
+  if (IA.kakao) return 'kakaotalk://web/openExternal?url=' + encodeURIComponent(url);
+  if (IA.line) return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'openExternalBrowser=1';
+  /* 안드로이드는 크롬을 직접 연다. 크롬이 없으면 fallback 주소로 되돌아온다 */
+  if (IA.android) return 'intent://' + url.replace(/^https?:\/\//i, '') +
+    '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+  return '';          /* 아이폰은 사파리를 강제로 열 수 없다 */
+}
+function copyAddr(guide) {
+  const url = location.href;
+  const done = () => toast(guide ? '주소를 복사했습니다. 사파리를 열고 붙여 넣거나, 오른쪽 아래 메뉴에서 「다른 브라우저로 열기」를 누르세요.' : '주소를 복사했습니다.', 5200);
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, () => fallbackCopy(url, done)); return; }
+  } catch (e) { /* 아래로 */ }
+  fallbackCopy(url, done);
+}
+function fallbackCopy(text, done) {
+  const t = document.createElement('textarea');
+  t.value = text; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+  try { document.execCommand('copy'); done(); } catch (e) { toast('주소를 길게 눌러 복사해 주세요.', 4200); }
+  t.remove();
+}
+/* 앱 안에서는 blob: 이 통하지 않아 data: 주소로 바꿔 넘긴다.
+   data: 는 문자열이라 너무 크면 앱이 통째로 거부한다 — 프로필 PNG(1MB 안팎)는 넉넉히 들어가게 상한을 둔다 */
+function downloadInApp(blob, name) {
+  const how = () => '위쪽 「' + $('iaGo').textContent + '」를 눌러 주세요.';
+  if (blob.size > 10 * 1024 * 1024) { toast('앱 안에서는 10MB가 넘는 파일을 저장할 수 없습니다. ' + how(), 5600); return; }
+  const go = href => {
+    const a = document.createElement('a');
+    a.href = href; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  const fr = new FileReader();
+  fr.onload = () => { try { go(fr.result); } catch (e) { /* 안내로 넘어간다 */ } };
+  fr.onerror = () => toast('앱 안에서는 저장이 막혀 있습니다. ' + how(), 5200);
+  fr.readAsDataURL(blob);
+}
+/* 앱 안에서 열렸으면 작성을 막고 창을 띄운다.
+   띠만 띄워 두면 다 채운 뒤에야 저장이 안 되는 걸 알게 되는데,
+   입력은 그 탭에만 있어서 브라우저를 옮기는 순간 처음부터 다시 써야 한다 */
+function initInApp() {
+  if (!IA.on) return;
+  const app = IA.naver ? '네이버 앱' : IA.kakao ? '카카오톡' : IA.line ? '라인' : '앱';
+  const copyOnly = IA.ios && !IA.kakao && !IA.line;   /* 아이폰은 사파리를 강제로 열 수 없다 */
+  /* 카카오·라인은 앱의 자체 통로(kakaotalk:// · openExternalBrowser)로 기본 브라우저가 열린다.
+     크롬을 콕 집어 여는 것은 안드로이드 intent:// 뿐이라 단추 문구와 순서를 나눈다 */
+  const chromeIntent = IA.android && !IA.kakao && !IA.line;
+
+  document.body.classList.add('inapp');
+  $('iaMsg').textContent = app + ' 안에서는 그림 저장이 안 될 수 있어요.';
+  $('doneInapp').classList.remove('hide');
+
+  $('iaDesc').innerHTML = '<b>' + app + '</b> 안에서 열렸습니다. 이 화면에서는 ' +
+    '<b>메뉴 카드 그림이 저장되지 않을 수 있습니다.</b> 메뉴 뽑기와 복사는 그대로 됩니다.';
+  const steps = copyOnly
+    ? ['아래 <b>주소 복사</b>를 누르세요.',
+       '오른쪽 아래 <b>메뉴</b>에서 「다른 브라우저로 열기」를 누르거나, <b>사파리</b> 주소창에 붙여 넣으세요.']
+    : chromeIntent
+      ? ['아래 <b>크롬에서 열기</b>를 누르세요.',
+         '크롬이 없으면 오른쪽 위 <b>메뉴</b>에서 「다른 브라우저로 열기」를 누르세요.']
+      : ['아래 <b>다른 브라우저로 열기</b>를 누르세요.',
+         '열리지 않으면 ' + (IA.ios ? '화면의' : '오른쪽 위') + ' <b>메뉴</b>에서 「다른 브라우저로 열기」를 누르세요.'];
+  $('iaSteps').innerHTML = steps.map(s => '<li>' + s + '</li>').join('');
+  const label = copyOnly ? '주소 복사' : chromeIntent ? '크롬에서 열기' : '다른 브라우저로 열기';
+  $('iaGo').textContent = label;
+  $('iaGo2').textContent = label;
+  $('doneGo').textContent = label;
+  $('iaSub').textContent = copyOnly
+    ? '사파리에 붙여 넣거나, 오른쪽 아래 메뉴에서 「다른 브라우저로 열기」를 누르세요.'
+    : '메뉴 뽑기·복사는 그대로 돼요. 그림을 저장하려면 브라우저를 옮겨 주세요.';
+
+  /* 윗머리 띠를 ✕ 로 닫았으면 새로 고쳐도 띠는 다시 띄우지 않는다(막는 창은 열 때마다 뜬다) */
+  let hidden = false;
+  try { hidden = sessionStorage.getItem('menu_picker.iahide') === '1'; } catch (e) { /* 무시 */ }
+  if (hidden) document.body.classList.remove('inapp');
+  /* 메뉴는 앱 안에서도 뽑는다 — 막는 창은 띄우지 않고, 그림 저장만 data: 주소로 돌려 받는다(downloadInApp) */
+}
+/* 창이 떠 있는 동안에는 뒤쪽 입력칸을 아예 만지지 못하게 한다 */
+function lockInApp(on) {
+  document.body.classList.toggle('ia-lock', on);
+  const w = document.querySelector('.wrap');
+  if (on) w.setAttribute('inert', ''); else w.removeAttribute('inert');
+  if (!on) $('iaModal').blur();
+}
+/* 아이폰에서 주소를 복사했으면 창 안에서 바로 알려 준다 — 토스트는 창 위에 잠깐 떴다 사라진다 */
+function iaCopied() {
+  $('iaDesc').innerHTML = '주소를 <b>복사했습니다.</b> 이제 <b>사파리</b>를 열고 주소창에 붙여 넣으세요.';
+  $('iaSteps').innerHTML = '<li>홈 화면에서 <b>사파리</b>를 엽니다.</li>' +
+    '<li>주소창을 길게 눌러 <b>붙여넣기</b> 하세요.</li>' +
+    '<li>또는 이 화면 오른쪽 아래 <b>메뉴</b> → 「다른 브라우저로 열기」.</li>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   저장 완료 카드 — 저장이 끝나면 본문 흐름 안에 펼치고 그쪽을 보여 준다(화면을 덮지 않는다)
+   ════════════════════════════════════════════════════════════ */
+const DONE = {
+  goT: 0,
+  show(msg, steps) {
+    $('doneMsg').textContent = msg;
+    $('doneSteps').innerHTML = (steps || []).map(x => '<li>' + x + '</li>').join('');
+    $('doneCard').classList.remove('hide');
+    clearTimeout(this.goT);
+    this.goT = setTimeout(() => $('doneCard').scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+  },
+  hide() { $('doneCard').classList.add('hide'); }
+};
+
+/* ════════════════════════════════════════════════════════════
+   화면 — 탭·조건·결과·기록, 링크(#ask= 친구에게 묻기 · #pick= 메뉴 하나)
+   ════════════════════════════════════════════════════════════ */
+let CUR = null, CURFROM = null;
+const BASE = () => location.href.split('#')[0];
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const qsa = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+function save() {
+  lsSet('opt', JSON.stringify({ way: S.way, who: S.who, want: S.want, sit: S.sit, cat: S.cat, ex: S.ex, recent: S.recent }));
+}
+function load() {
+  try {
+    const o = JSON.parse(lsGet('opt') || 'null');
+    if (o) {
+      if ([-1, 0, 1, 2, 3].includes(o.way)) S.way = o.way;
+      if (typeof o.who === 'string' && (o.who === '' || WHO_WHY[o.who])) S.who = o.who;
+      S.want = (o.want || []).filter(t => WANT.includes(t));
+      S.sit = (o.sit || []).filter(t => SIT.some(x => x[0] === t));
+      S.cat = (o.cat || []).filter(i => CATN[i]);
+      S.ex = (o.ex || []).filter(k => EX.some(x => x[0] === k));
+      if ([0, 3, 7].includes(o.recent)) S.recent = o.recent;
+    }
+  } catch (e) { /* 처음 상태로 */ }
+  try { HIST = (JSON.parse(lsGet('hist') || '[]') || []).filter(h => h && BYNAME.has(h.n) && /^\d{4}-\d\d-\d\d$/.test(h.d)).slice(0, 30); } catch (e) { HIST = []; }
+  try { FR = new Set((JSON.parse(lsGet('fridge') || '[]') || []).filter(w => ING_HOME.includes(w))); } catch (e) { FR = new Set(); }
+  FRB = lsGet('frb') !== '0';
+}
+function setSeg(name, v) {
+  qsa('[data-seg="' + name + '"] button').forEach(b => b.classList.toggle('on', b.dataset.v === String(v)));
+}
+function chipRow(el, items, isOn) {
+  el.innerHTML = items.map(([v, label]) => '<button type="button" data-v="' + esc(v) + '" aria-pressed="' + (isOn(v) ? 'true' : 'false') + '" class="' + (isOn(v) ? 'on' : '') + '">' + esc(label) + '</button>').join('');
+}
+function renderOpt() {
+  setSeg('meal', S.meal); setSeg('way', S.way); setSeg('who', S.who); setSeg('recent', S.recent);
+  chipRow($('cWant'), WANT.map(t => [t, t === '가볍' ? '가벼운' : t === '든든' ? '든든한' : t === '담백' ? '담백한' : t === '매콤' ? '매콤한' : t]), v => S.want.includes(v));
+  chipRow($('cSit'), SIT, v => S.sit.includes(v));
+  chipRow($('cCat'), CATN.map((n, i) => [String(i), n]), v => S.cat.includes(+v));
+  chipRow($('cEx'), EX, v => S.ex.includes(v));
+  const n = (S.who ? 1 : 0) + S.want.length + S.sit.length + S.cat.length + S.ex.length;
+  $('optN').textContent = n;
+  updCount();
+}
+function updCount() {
+  const k = filterMenus().length;
+  const lbl = MEALN[S.meal] + (S.way >= 0 ? ' · ' + WAYN[S.way] : '');
+  const c = $('candN');
+  c.classList.toggle('zero', !k);
+  c.innerHTML = k ? '조건에 맞는 메뉴 <b>' + k + '</b>가지 <span>(' + esc(lbl) + ')</span>'
+    : '조건에 맞는 메뉴가 없어요. <button type="button" id="loosen">땡기는 것·상황 비우기</button>';
+  $('pickInfo').textContent = k ? k + '가지 가운데서' : '맞는 메뉴 없음';
+  $('mbN').textContent = k + '가지 · ' + lbl;
+  $('btnPick').disabled = !k; $('mbPick').disabled = !k;
+  return k;
+}
+function toggleIn(arr, v) { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); }
+
+/* ── 결과 칸 ── */
+function showRes(m, from, scroll) {
+  CUR = m; CURFROM = from || null;
+  noteShown(m);
+  $('resCard').classList.remove('hide');
+  $('resHead').textContent = from && from.title ? from.title : '오늘의 메뉴';
+  $('resFrom').textContent = from && from.tag ? from.tag : MEALN[S.meal];
+  $('resE').textContent = m.e; $('resN').textContent = m.n; $('resD').textContent = m.d;
+  const meta = ['<span class="k">' + esc(CATN[m.c]) + '</span>'];
+  [0, 1, 2, 3].filter(w => hasW(m, w)).forEach(w => meta.push('<span>' + WAYN[w] + '</span>'));
+  if (hasW(m, 2)) meta.push('<span>집에서 ' + m.tm + '분 · ' + LV[m.lv] + '</span>');
+  meta.push('<span>주재료 ' + esc(m.g.slice(0, 5).join(', ')) + '</span>');
+  $('resMeta').innerHTML = meta.join('');
+  $('resWhy').innerHTML = whyOf(m, from).map(x => '<li>' + esc(x) + '</li>').join('');
+  const ok = HIST.length && HIST[0].n === m.n && HIST[0].d === ymd(new Date());
+  $('btnOk').classList.toggle('on', !!ok); $('btnOk').textContent = ok ? '✅ 기록했어요' : '✅ 이걸로 정했어요';
+  /* 다른 후보 — 같은 조건에서 셋 */
+  const pool = (from && from.pool ? from.pool : filterMenus()).filter(x => x.n !== m.n);
+  const alts = wpick(pool, 3);
+  $('resAlts').innerHTML = alts.length ? '<div class="ah">이건 별로라면 — 다른 후보</div><div class="ab">' +
+    alts.map(x => '<button type="button" data-n="' + esc(x.n) + '">' + x.e + ' ' + esc(x.n) + '</button>').join('') + '</div>' : '';
+  const q = encodeURIComponent(m.n), L = [];
+  if (hasW(m, 2)) L.push('<a href="https://search.naver.com/search.naver?query=' + encodeURIComponent(m.n + ' 레시피') + '" target="_blank" rel="noopener">🍳 레시피 찾기</a>');
+  if (hasW(m, 0) || hasW(m, 1)) L.push('<a href="https://map.naver.com/p/search/' + q + '" target="_blank" rel="noopener">📍 근처 식당 찾기</a>');
+  $('resLinks').innerHTML = L.join('');
+  if (scroll !== false) setTimeout(() => $('resCard').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }), 30);
+}
+let spinning = false;
+function doPick(scroll) {
+  if (spinning) return;
+  const list = filterMenus();
+  if (!list.length) { updCount(); toast('조건에 맞는 메뉴가 없어요. 조건을 조금 비워 주세요.'); return; }
+  const m = wpick(list, 1)[0];
+  const slot = $('slot'), done = () => {
+    spinning = false; $('btnPick').disabled = false;
+    slot.classList.remove('spin'); slot.classList.add('got');
+    $('slotE').textContent = m.e; $('slotN').textContent = m.n;
+    $('btnPick').textContent = '🎲 다시 뽑기';
+    showRes(m, { cond: true }, scroll);
+  };
+  if (reduced() || list.length < 2) { done(); return; }
+  spinning = true; $('btnPick').disabled = true;
+  slot.classList.remove('got'); slot.classList.add('spin');
+  let k = 0;
+  const steps = 13;
+  const tick = () => {
+    if (k >= steps) { done(); return; }
+    const x = list[Math.floor(rnd() * list.length)];
+    $('slotE').textContent = x.e; $('slotN').textContent = x.n;
+    k++; setTimeout(tick, 40 + k * k * 1.4);
+  };
+  tick();
+}
+
+/* ── 탭 ── */
+const PANES = { pick: 'pPick', cup: 'pCup', group: 'pGroup', fridge: 'pFridge', week: 'pWeek' };
+function setMode(v) {
+  S.mode = v; setSeg('mode', v);
+  qsa('[data-seg="mode"] button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v ? 'true' : 'false'));
+  for (const k in PANES) $(PANES[k]).classList.toggle('hide', k !== v);
+  $('resCard').classList.add('hide');
+  if (v === 'group' && !GRP.list.length) grpNew();
+  if (v === 'group') renderGrp();
+  if (v === 'fridge') renderFridge();
+  if (v === 'cup') renderCup();
+  mbarUpdate();
+}
+
+/* ── 월드컵 ── */
+function renderCup() {
+  $('cupSet').classList.toggle('hide', CUP.on); $('cupPlay').classList.toggle('hide', !CUP.on);
+  $('cupInfo').textContent = CUP.on ? CUP.size + '강' : filterMenus().length + '가지 가운데서';
+  if (!CUP.on) return;
+  const n = CUP.cur.length, a = CUP.cur[CUP.i * 2], b = CUP.cur[CUP.i * 2 + 1];
+  $('cupRound').innerHTML = '<b>' + roundName(n) + '</b>' + (n > 2 ? ' · ' + (CUP.i + 1) + ' / ' + n / 2 : '');
+  const card = (m, k) => '<button type="button" data-k="' + k + '"><span class="e">' + m.e + '</span><b>' + esc(m.n) + '</b><small>' + esc(m.d) + '</small></button>';
+  $('cupVs').innerHTML = card(a, 0) + '<span class="vx">VS</span>' + card(b, 1);
+}
+
+/* ── 여럿이 ── */
+function renderGrp() {
+  $('grpList').innerHTML = GRP.list.map(m => '<button type="button" data-n="' + esc(m.n) + '" class="' + (GRP.x.has(m.n) ? 'x' : '') + (GRP.win === m.n ? ' win' : '') +
+    '" aria-pressed="' + (GRP.x.has(m.n) ? 'true' : 'false') + '"><span class="e">' + m.e + '</span><span>' + esc(m.n) + '</span></button>').join('');
+  const left = grpLeft().length;
+  $('grpInfo').textContent = '남은 메뉴 ' + left + ' / ' + GRP.list.length;
+  $('grpNote').textContent = GRP.list.length < 12 ? '조건에 맞는 메뉴가 ' + GRP.list.length + '가지뿐이라 그만큼만 띄웠어요.' : '';
+  $('grpPick').disabled = !left;
+}
+function askLink(names) {
+  return BASE() + '#m=' + S.meal + '&ask=' + names.map(encodeURIComponent).join(',');
+}
+
+/* ── 냉장고 ── */
+function renderFridge() {
+  const used = new Set(ING_HOME);
+  $('frIng').innerHTML = ING.map(([g, ws]) => {
+    const w = ws.filter(x => used.has(x));
+    if (!w.length) return '';
+    return '<div class="ig"><div class="igh">' + esc(g) + '</div><div class="chips">' + w.map(x => {
+      const basic = FRB && BASIC.includes(x);
+      return '<button type="button" data-v="' + esc(x) + '" class="' + (FR.has(x) || basic ? 'on' : '') + '" aria-pressed="' + (FR.has(x) || basic ? 'true' : 'false') + '"' + (basic ? ' disabled title="있다고 보는 중"' : '') + '>' + esc(x) + '</button>';
+    }).join('') + '</div></div>';
+  }).join('');
+  $('frBasic').checked = FRB;
+  const res = fridgeMatch();
+  $('frHead').textContent = '만들 수 있는 메뉴' + (FR.size ? ' · ' + res.filter(r => !r.miss.length).length + '가지 바로' : '');
+  if (!FR.size) { $('frRes').innerHTML = '<p class="frempty">위에서 집에 있는 재료를 하나 이상 눌러 주세요. 예를 들어 <b>김치·돼지고기·두부</b>를 누르면 김치찌개, 김치볶음밥, 두부김치 같은 메뉴가 나와요.</p>'; return; }
+  const G = [[0, '지금 바로 만들 수 있어요', 30], [1, '한 가지만 더 있으면', 12], [2, '두 가지만 더 있으면', 8]];
+  let html = '';
+  for (const [k, t, lim] of G) {
+    const rs = res.filter(r => r.miss.length === k).slice(0, lim);
+    if (!rs.length) continue;
+    html += '<div class="frg"><div class="frh">' + t + ' <em>' + res.filter(r => r.miss.length === k).length + '</em></div><ul class="fl">' + rs.map(r =>
+      '<li><button type="button" data-n="' + esc(r.m.n) + '"><span class="e">' + r.m.e + '</span><span class="t"><b>' + esc(r.m.n) + '</b><small>' +
+      (r.miss.length ? '<i>없는 것: ' + esc(r.miss.join(', ')) + '</i> · ' : '') + '있는 것: ' + esc(r.have.join(', ')) + '</small></span><span class="m">' + r.m.tm + '분</span></button></li>').join('') + '</ul></div>';
+  }
+  $('frRes').innerHTML = html || '<p class="frempty">고른 재료로 만들 메뉴를 찾지 못했어요. 재료를 몇 가지 더 눌러 보세요. 양파·대파·달걀처럼 자주 쓰는 재료가 있으면 훨씬 많이 나와요.</p>';
+}
+
+/* ── 일주일 ── */
+function renderWeek() {
+  $('wkOut').classList.remove('hide');
+  $('wkList').innerHTML = WK.days.map((d, i) => {
+    if (!d.m) return '<li><span class="d">' + DAYN[i] + '</span><span class="mn">맞는 메뉴가 없어요</span></li>';
+    return '<li class="' + (d.lock ? 'lk' : '') + '"><span class="d' + (i >= 5 ? ' we' : '') + '">' + DAYN[i] + '</span>' +
+      '<button type="button" class="mn" data-i="' + i + '"><span class="e">' + d.m.e + '</span><span><b>' + esc(d.m.n) + (d.out ? '<span class="out">외식·배달</span>' : '') + '</b><small>' +
+      (d.out ? esc(d.m.d) : d.m.tm + '분 · ' + LV[d.m.lv] + ' · ' + esc(d.m.g.slice(0, 4).join(', '))) + '</small></span></button>' +
+      '<button type="button" class="ib' + (d.lock ? ' on' : '') + '" data-lock="' + i + '" aria-pressed="' + (d.lock ? 'true' : 'false') + '" aria-label="' + DAYN[i] + '요일 메뉴 ' + (d.lock ? '잠금 풀기' : '잠그기') + '">' + (d.lock ? '🔒' : '🔓') + '</button>' +
+      '<button type="button" class="ib" data-re="' + i + '" aria-label="' + DAYN[i] + '요일만 다시 고르기"' + (d.lock ? ' disabled' : '') + '>🔄</button></li>';
+  }).join('');
+  const shop = wkShop();
+  $('wkShopN').textContent = shop.length ? '· ' + shop.length + '가지' : '';
+  $('wkShop').innerHTML = shop.length ? shop.map(([w, n]) => '<span class="' + (FR.has(w) ? 'have' : '') + '">' + esc(w) + (n > 1 ? '<em>×' + n + '</em>' : '') + '</span>').join('') : '<span>집밥 날이 없어요</span>';
+  $('wkShopNote').textContent = '집밥 날 주재료를 모았어요(×는 쓰는 날 수). 기본 양념' + (FRB ? '과 밥·고추장·된장' : '') + '은 뺐고, 냉장고 탭에서 고른 재료는 줄을 그어 두었어요.';
+}
+function weekText() {
+  const L = ['📅 이번 주 ' + MEALN[WK.meal] + ' 식단'];
+  WK.days.forEach((d, i) => { if (d.m) L.push(DAYN[i] + '  ' + d.m.e + ' ' + d.m.n + (d.out ? ' (외식·배달)' : '')); });
+  const shop = wkShop().filter(([w]) => !FR.has(w));
+  if (shop.length) L.push('', '🛒 장보기: ' + shop.map(([w, n]) => w + (n > 1 ? '×' + n : '')).join(', '));
+  L.push('', '메뉴 추천기 ' + BASE());
+  return L.join('\n');
+}
+
+/* ── 기록 ── */
+function renderHist() {
+  $('histN').textContent = HIST.length;
+  $('histEmpty').classList.toggle('hide', HIST.length > 0);
+  $('histClear').classList.toggle('hide', !HIST.length);
+  $('histList').innerHTML = HIST.map((h, i) => {
+    const m = BYNAME.get(h.n), p = h.d.split('-'), da = daysAgo(h.d);
+    return '<li><span class="hd">' + (da === 0 ? '오늘' : da === 1 ? '어제' : +p[1] + '/' + +p[2]) + '</span><span class="hn">' + m.e + ' ' + esc(m.n) + '</span>' +
+      '<button type="button" class="ib" data-del="' + i + '" aria-label="' + esc(m.n) + ' 기록 지우기">✕</button></li>';
+  }).join('');
+}
+function saveHist() { lsSet('hist', JSON.stringify(HIST)); renderHist(); updCount(); }
+
+/* ── 친구가 보낸 링크 ── */
+function readHash() {
+  const h = decodeURIComponent((location.hash || '').slice(1));
+  if (!h) return;
+  const p = {};
+  h.split('&').forEach(kv => { const i = kv.indexOf('='); if (i > 0) p[kv.slice(0, i)] = kv.slice(i + 1); });
+  if (p.m && /^[0-3]$/.test(p.m)) S.meal = +p.m;
+  if (p.ask) {
+    const names = p.ask.split(',').map(s => s.trim()).filter(n => BYNAME.has(n)).filter((n, i, a) => a.indexOf(n) === i).slice(0, 8);
+    if (names.length >= 2) {
+      $('vote').classList.remove('hide');
+      $('voteTitle').textContent = '친구가 묻는 ' + MEALN[S.meal] + ' 메뉴';
+      $('voteList').innerHTML = names.map(n => { const m = BYNAME.get(n); return '<button type="button" class="vb" data-n="' + esc(n) + '">' + m.e + ' ' + esc(n) + '</button>'; }).join('');
+    }
+  }
+  if (p.pick && BYNAME.has(p.pick)) {
+    setTimeout(() => showRes(BYNAME.get(p.pick), { title: '친구가 보낸 메뉴', tag: '이거 어때?' }), 60);
+  }
+}
+
+/* ── 휴대폰 아래 띠 ── */
+let pickVis = true;
+const MQ = window.matchMedia('(min-width:980px)');
+function mbarUpdate() {
+  const on = !MQ.matches && S.mode === 'pick' && !pickVis;
+  $('mbar').classList.toggle('on', on);
+  $('mbar').setAttribute('aria-hidden', on ? 'false' : 'true');
+}
+function goExternal() {
+  const u = externalUrl();
+  if (u) location.href = u; else { copyAddr(true); iaCopied(); }
+}
+function segClick(sel, fn) {
+  qsa(sel).forEach(el => el.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b && el.contains(b)) fn(b.dataset.v, b); }));
+}
+function init() {
+  load();
+  segClick('[data-seg="mode"]', setMode);
+  segClick('[data-seg="meal"]', v => { S.meal = +v; renderOpt(); });
+  segClick('[data-seg="way"]', v => { S.way = +v; save(); renderOpt(); });
+  segClick('[data-seg="who"]', v => { S.who = v; save(); renderOpt(); });
+  segClick('[data-seg="recent"]', v => { S.recent = +v; save(); renderOpt(); });
+  segClick('#cWant', v => { toggleIn(S.want, v); save(); renderOpt(); });
+  segClick('#cSit', v => { toggleIn(S.sit, v); save(); renderOpt(); });
+  segClick('#cCat', v => { toggleIn(S.cat, +v); save(); renderOpt(); });
+  segClick('#cEx', v => { toggleIn(S.ex, v); save(); renderOpt(); });
+  $('optReset').addEventListener('click', () => { S.who = ''; S.want = []; S.sit = []; S.cat = []; S.ex = []; save(); renderOpt(); toast('조건을 비웠어요. 끼니와 먹는 방법만 남았어요.'); });
+  $('candN').addEventListener('click', e => { if (e.target.id === 'loosen') { S.want = []; S.sit = []; save(); renderOpt(); } });
+
+  $('btnPick').addEventListener('click', () => doPick());
+  $('mbPick').addEventListener('click', () => doPick());
+  $('btnAgain').addEventListener('click', () => {
+    if (S.mode === 'pick') { $('pPick').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); doPick(false); }
+    else { const l = filterMenus(); if (l.length) showRes(wpick(l, 1)[0], { cond: true }, false); }
+  });
+  $('resAlts').addEventListener('click', e => { const b = e.target.closest('button[data-n]'); if (b) showRes(BYNAME.get(b.dataset.n), CURFROM, false); });
+  $('btnOk').addEventListener('click', () => {
+    if (!CUR) return;
+    const t = ymd(new Date());
+    if (HIST.length && HIST[0].n === CUR.n && HIST[0].d === t) { HIST.shift(); saveHist(); showRes(CUR, CURFROM, false); toast('기록을 지웠어요.'); return; }
+    HIST.unshift({ n: CUR.n, d: t }); HIST = HIST.slice(0, 30); saveHist();
+    $('btnOk').classList.add('on'); $('btnOk').textContent = '✅ 기록했어요';
+    toast('오늘 「' + CUR.n + '」 먹은 걸로 남겼어요.' + (S.recent ? ' ' + S.recent + '일 동안은 뽑기에서 빠져요.' : ''));
+  });
+  $('btnShare').addEventListener('click', () => { if (CUR) sendLink(ro(MEALN[S.meal]) + ' ' + CUR.e + ' ' + CUR.n + ' 어때? 🤔', BASE() + '#m=' + S.meal + '&pick=' + encodeURIComponent(CUR.n)); });
+  $('btnPng').addEventListener('click', () => { if (CUR) saveCard(CUR).catch(() => toast('그림을 만들지 못했어요.')); });
+
+  /* 월드컵 */
+  segClick('[data-seg="cupn"]', v => { S.cupn = +v; setSeg('cupn', v); });
+  $('cupStart').addEventListener('click', () => {
+    const n = cupStart(S.cupn);
+    if (!n) { toast('조건에 맞는 메뉴가 4가지보다 적어요. 조건을 조금 비워 주세요.', 3600); return; }
+    if (n < S.cupn) toast('조건에 맞는 메뉴가 적어서 ' + n + '강으로 해요.');
+    $('resCard').classList.add('hide'); renderCup();
+  });
+  $('cupVs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if (!b) return;
+    const w = cupChoose(+b.dataset.k);
+    renderCup();
+    if (w) showRes(w, { title: '월드컵 우승 메뉴', tag: '🏆 ' + CUP.size + '강 우승', cond: true });
+  });
+  $('cupNone').addEventListener('click', () => { if (cupReplace()) renderCup(); else toast('바꿀 메뉴가 더 없어요. 둘 중 하나를 골라 주세요.'); });
+  $('cupStop').addEventListener('click', () => { CUP.on = false; renderCup(); $('resCard').classList.add('hide'); });
+
+  /* 여럿이 */
+  $('grpList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if (!b) return;
+    const n = b.dataset.n; if (GRP.x.has(n)) GRP.x.delete(n); else GRP.x.add(n);
+    GRP.win = ''; renderGrp();
+  });
+  $('grpNew').addEventListener('click', () => { grpNew(); renderGrp(); $('resCard').classList.add('hide'); });
+  $('grpPick').addEventListener('click', () => {
+    const left = grpLeft(); if (!left.length) return;
+    const m = left[Math.floor(rnd() * left.length)];
+    GRP.win = m.n; renderGrp();
+    showRes(m, { title: '여럿이 고른 메뉴', tag: '남은 ' + left.length + '개 가운데', pool: left, cond: true });
+  });
+  $('grpAsk').addEventListener('click', () => {
+    const left = grpLeft();
+    if (left.length < 2) { toast('메뉴가 두 개 이상 남아 있어야 물어볼 수 있어요.'); return; }
+    const names = left.slice(0, 8).map(m => m.n);
+    sendLink(ro(MEALN[S.meal]) + ' 뭐 먹을까? 하나만 골라 줘 🙏\n' + left.slice(0, 8).map(m => m.e + ' ' + m.n).join(' · '), askLink(names));
+    if (left.length > 8) $('grpNote').textContent = '남은 메뉴가 많아서 앞의 8개만 링크에 담았어요.';
+  });
+
+  /* 냉장고 */
+  $('frIng').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if (!b || b.disabled) return;
+    const w = b.dataset.v; if (FR.has(w)) FR.delete(w); else FR.add(w);
+    lsSet('fridge', JSON.stringify([...FR])); renderFridge();
+  });
+  $('frBasic').addEventListener('change', e => { FRB = e.target.checked; lsSet('frb', FRB ? '1' : '0'); renderFridge(); });
+  $('frClear').addEventListener('click', () => { FR.clear(); lsSet('fridge', '[]'); renderFridge(); $('resCard').classList.add('hide'); });
+  $('frRes').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if (!b) return;
+    const r = fridgeMatch().find(x => x.m.n === b.dataset.n);
+    if (r) showRes(r.m, { title: '냉장고 재료로 만드는 메뉴', tag: r.miss.length ? r.miss.length + '가지만 더' : '바로 만들 수 있어요', fr: true, have: r.have, miss: r.miss, pool: fridgeMatch().map(x => x.m) });
+  });
+
+  /* 일주일 */
+  segClick('[data-seg="wdays"]', v => { WK.n = +v; setSeg('wdays', v); });
+  segClick('[data-seg="wmeal"]', v => { WK.meal = +v; setSeg('wmeal', v); });
+  segClick('[data-seg="wout"]', v => { S.wout = +v; setSeg('wout', v); });
+  $('wkGo').addEventListener('click', () => { wkGen(false); renderWeek(); $('resCard').classList.add('hide'); });
+  $('wkAgain').addEventListener('click', () => { wkGen(true); renderWeek(); });
+  $('wkList').addEventListener('click', e => {
+    const lk = e.target.closest('[data-lock]'), re = e.target.closest('[data-re]'), mn = e.target.closest('.mn[data-i]');
+    if (lk) { const d = WK.days[+lk.dataset.lock]; d.lock = !d.lock; renderWeek(); }
+    else if (re) { wkPickDay(+re.dataset.re); renderWeek(); }
+    else if (mn) { const d = WK.days[+mn.dataset.i]; showRes(d.m, { title: DAYN[+mn.dataset.i] + '요일 ' + MEALN[WK.meal], tag: d.out ? '외식·배달' : '집밥', pool: wkCand(d.out) }); }
+  });
+  $('wkCopy').addEventListener('click', () => copyText(weekText(), '식단과 장보기 목록을 복사했어요. 메모 앱이나 단톡방에 붙여 넣으세요.'));
+  $('wkPng').addEventListener('click', () => saveWeek().catch(() => toast('그림을 만들지 못했어요.')));
+
+  /* 기록 */
+  $('histList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { HIST.splice(+b.dataset.del, 1); saveHist(); } });
+  $('histClear').addEventListener('click', () => { HIST = []; saveHist(); toast('먹은 기록을 모두 지웠어요.'); });
+
+  /* 상황별 모음 */
+  $('lists').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if (!b) return;
+    const m = BYNAME.get(b.dataset.n), h = b.closest('.ml').querySelector('h3').firstChild.textContent.trim();
+    if (S.mode !== 'pick') setMode('pick');
+    showRes(m, { title: h, tag: '상황별 모음' });
+  });
+
+  /* 친구 링크 */
+  $('voteList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if (!b) return;
+    qsa('#voteList .vb').forEach(x => x.classList.toggle('on', x === b));
+    const m = BYNAME.get(b.dataset.n);
+    $('voteRes').classList.remove('hide');
+    $('voteMsg').innerHTML = '<b>' + m.e + ' ' + esc(m.n) + '</b> 먹자! 아래 단추로 친구에게 답장을 보내세요.';
+    $('voteSend').dataset.n = m.n;
+  });
+  $('voteSend').addEventListener('click', () => { const m = BYNAME.get($('voteSend').dataset.n); if (m) sendLink('나는 ' + m.e + ' ' + m.n + ' 먹고 싶어! 🙋', BASE() + '#m=' + S.meal + '&pick=' + encodeURIComponent(m.n)); });
+  $('voteMine').addEventListener('click', () => { $('vote').classList.add('hide'); document.querySelector('.modebar').scrollIntoView({ behavior: 'smooth' }); });
+  $('voteX').addEventListener('click', () => $('vote').classList.add('hide'));
+
+  $('doneHide').addEventListener('click', () => DONE.hide());
+  $('iaGo').addEventListener('click', goExternal);
+  $('iaGo2').addEventListener('click', goExternal);
+  $('doneGo').addEventListener('click', goExternal);
+  $('iaStay').addEventListener('click', () => lockInApp(false));
+  $('iaX').addEventListener('click', () => { document.body.classList.remove('inapp'); try { sessionStorage.setItem('menu_picker.iahide', '1'); } catch (e) { /* 무시 */ } });
+
+  if ('IntersectionObserver' in window)
+    new IntersectionObserver(es => { es.forEach(e => { pickVis = e.isIntersecting; }); mbarUpdate(); }).observe($('btnPick'));
+  if (MQ.addEventListener) MQ.addEventListener('change', mbarUpdate); else MQ.addListener(mbarUpdate);
+
+  window.addEventListener('hashchange', readHash);
+  initInApp();
+  readHash();
+  renderOpt(); renderHist();
+  setSeg('cupn', S.cupn);
+}
+init();
+</script>
+</body>
+</html>
